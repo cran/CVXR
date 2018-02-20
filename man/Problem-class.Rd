@@ -20,6 +20,7 @@
 \alias{constants,Problem-method}
 \alias{size_metrics,Problem-method}
 \alias{get_problem_data,Problem,character-method}
+\alias{unpack_results,Problem-method}
 \title{The Problem class.}
 \usage{
 Problem(objective, constraints = list())
@@ -51,6 +52,8 @@ Problem(objective, constraints = list())
 \S4method{size_metrics}{Problem}(object)
 
 \S4method{get_problem_data}{Problem,character}(object, solver)
+
+\S4method{unpack_results}{Problem}(object, solver, results_dict)
 }
 \arguments{
 \item{objective}{A \linkS4class{Minimize} or \linkS4class{Maximize} object representing the optimization objective.}
@@ -62,6 +65,8 @@ Problem(objective, constraints = list())
 \item{value}{A \linkS4class{Minimize} or \linkS4class{Maximize} object (objective), list of \linkS4class{Constraint} objects (constraints), or numeric scalar (value).}
 
 \item{solver}{A string indicating the solver that the problem data is for. Call \code{installed_solvers()} to see all available.}
+
+\item{results_dict}{A list containing the solver output.}
 }
 \description{
 This class represents a convex optimization problem.
@@ -95,6 +100,10 @@ This class represents a convex optimization problem.
 \item \code{size_metrics}: Information about the size of the problem.
 
 \item \code{get_problem_data}: Get the problem data passed to the specified solver.
+
+\item \code{unpack_results}: Parses the output from a solver and updates the problem state, including the status,
+objective value, and values of the primal and dual variables.
+Assumes the results are from the given solver.
 }}
 
 \section{Slots}{

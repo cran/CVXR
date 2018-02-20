@@ -1,6 +1,6 @@
-32f03d1c7fe7a58c97a2f2356e3f2728 *DESCRIPTION
+f64d5436a9cb13589c1016d12e204102 *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
-bacfe09ed4efe1ae6470ba4f4129160b *NAMESPACE
+06f21aabc824a4a98217b43b28b8096e *NAMESPACE
 a10c854d9621d4ebd9719fe06de6af92 *R/CVXR.R
 bdeccc507b3f9f68b5462d5d49284de7 *R/CVXcanon-R6.R
 7d729e9a5af3bc0292823e7f214e4198 *R/Deque.R
@@ -18,19 +18,19 @@ f9c9547c7e22bd991266a8e570dfe136 *R/constant.R
 1f52be6957fd99a5b6eec69447da27ae *R/elementwise.R
 04c5c7059ced15691274ac02caedc74d *R/exports.R
 321c621c768d9c7f0e856ed7461f6f18 *R/expressions.R
-276f7a3635b198f608ea3947bf167833 *R/generics.R
+50503b6a1e4f232a6dc065bddc2abd7b *R/generics.R
 7a787570261b017177e3a9ed443667fb *R/globals.R
 0fa1aef6d2292791463986e75b6428e1 *R/interface.R
 e9b6e14a9451f924a8e21b6c5d947656 *R/lin_ops.R
-5a7cedd6ad9d2aba0176892f4e7a97c1 *R/problem.R
+9e949d72387950b79cd917dc9748d13f *R/problem.R
 40f430f15408b47d810e979ca206f9fc *R/problem_data.R
 2c95611003e147f1aa68e6a47d0675db *R/rcppUtils.R
-aab09ced14df8afbe4a5457baa4ca986 *R/solver.R
+e6f37c27c8d735bcacd08f001896c214 *R/solver.R
 2c425d978d3d8b7f4d5c0c36e2c663cb *R/transforms.R
 a6d0b660fd4f4d2535ce94020f72675f *R/utilities.R
 12674037cf1249ee4e96f7c4991ef419 *R/variable.R
-6f0439cf72e541b2729b596c4a4fc69b *README.md
-2aea67538c979c1919ade6c7b8a80054 *build/vignette.rds
+6f9c5a9b96922b37fe13cc6c5470ff9b *README.md
+52a1b6ff0d7d04917f0e9d61f03d9756 *build/vignette.rds
 2ac31d1cb9e554b9f439248e4439fad5 *cleanup
 bbb79a66ee2687f69a8d876989cd6ab9 *data/cdiac.rda
 3f3f6920c7f0a6b2e44b15263f7d5454 *data/dspop.rda
@@ -45,7 +45,7 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 34bbc17ccbb183bafd419235f463e8d1 *demo/worstcov.R
 c03ab67751be55098332ff780d762859 *inst/doc/cvxr_intro.R
 586882759abbb9c6a5b62778429fc988 *inst/doc/cvxr_intro.Rmd
-5088355ec06527017198a52fbbafc2bd *inst/doc/cvxr_intro.html
+4eef140371ae3b685050230244cf7936 *inst/doc/cvxr_intro.html
 0569ac13665504c9336226f133772115 *inst/extdata/lena512.png
 c4720ef0ee1dbc8293739e1e0019d745 *inst/extdata/lena512_corrupted.png
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
@@ -110,7 +110,7 @@ e060dcc5a836c3c66552df350301057d *man/Parameter-class.Rd
 7d151ff74690b2ce1fa5811fd19c20d1 *man/Pnorm-class.Rd
 1da9823df9a5d69df3693de311b8b3e6 *man/Power-class.Rd
 d3dfde4c7b84913d37450e93c23b0b51 *man/Problem-arith.Rd
-c588fbe4cb0a879b59d31ab71ecaef90 *man/Problem-class.Rd
+7c9fc4e7aa79dc9a72c7e51667cada04 *man/Problem-class.Rd
 93576821b16112d0698afedea10aafb2 *man/QuadOverLin-class.Rd
 670521d3b3e97702af6d867aa75ea419 *man/RMulExpression-class.Rd
 28bffbdfb656e8dd170e25a96c86cc82 *man/Rdict-class.Rd
@@ -234,6 +234,7 @@ f199a0bd652afadc23da6b55d1f2d347 *man/sum_squares.Rd
 edc17f5a371e9ccdf9d6ecc548f4a7cd *man/to_numeric.Rd
 e2dda4f2014a81b0817f21d0ca07396e *man/transpose.Rd
 733299b77b9d582287f3c67bef00debc *man/tv.Rd
+a322b1209427b5a13724ad50cd311f7c *man/unpack_results.Rd
 bef04db61544ca04aee5edc9d0c5b77c *man/upper_tri.Rd
 17c1de039ebe8cc79dded99583710869 *man/validate_args.Rd
 074c1744baea45e356473a93c32fa6a6 *man/validate_solver.Rd
@@ -261,7 +262,7 @@ c1aed25b24daf0bd72032cb5bf857f59 *tests/manual/test_constant_atoms.R
 d23510bc7275748897808e29cf18841a *tests/manual/test_examples.R
 229695f314738dd4e5464f3decb9d32c *tests/manual/test_ls.R
 6e17d3b79e3ee7f386f31de84a624dd9 *tests/manual/test_scs.R
-defbac0f9d6d39c3b369026dea51aa5f *tests/manual/test_vignette.R
+fea2e039f9966e20763bf698eb21f4f6 *tests/manual/test_vignette.R
 505bd6688049b3950e207079a651797c *tests/testthat.R
 a4161247048988fac20f0d0d5589d50b *tests/testthat/test_atoms.R
 0d1015bb305561e8582f3bcf08fe6c0a *tests/testthat/test_constraints.R
@@ -283,5 +284,6 @@ c7535d774369f2c63a76c641dcad44bb *tests/testthat/test_problem.R
 8e357d93ae78b192b34350dd7c581078 *tests/testthat/test_semidefinite_vars.R
 602539faddd6b296a8458e835f7e0468 *tests/testthat/test_shape.R
 300555ae3b4df6fc32a2a3c8d3be3b3d *tests/testthat/test_sign.R
+0041c883d2610ac50d87b88149b5e536 *tests/testthat/test_unpack_results.R
 85c0e5370a5fcc6a7e3a8390e9fc56b0 *vignettes/bibtex/cvxr_refs.bib
 586882759abbb9c6a5b62778429fc988 *vignettes/cvxr_intro.Rmd
