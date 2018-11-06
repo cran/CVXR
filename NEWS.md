@@ -1,3 +1,13 @@
+# CVXR 0.99-2
+
+* Typo fixes to URLs.
+
+# CVXR 0.99-1
+
+* Bug fix: Updated python glue for both version 2 and 3
+(`gurobiglue.py`)
+* Bug fix: Workaround for zero extent sparse matrices in R not being
+  handled by reticulate (`mosekglue.py`)
 
 # CVXR 0.99
 
@@ -52,7 +62,7 @@ programming, MOSEK and GUROBI examples.
 
 * Updated `unpack_results` to behave exactly like in CVXPY. Added
   documentation and testthat tests. Documented in [Getting Faster
-  Results article](https://cvxr.rbind.io/post/examples/cvxr_speed/).
+  Results article](https://cvxr.rbind.io/cvxr_examples/cvxr_speed/).
   
 
 # CVXR 0.94-4
