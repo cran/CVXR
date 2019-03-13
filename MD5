@@ -1,7 +1,7 @@
-01a179b5ed1d550935b5fec97c8a6bc5 *DESCRIPTION
+e4b289ce9502c474d522dfba7f695578 *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
 100d8ce9282539e00fbd119a9952c04a *NAMESPACE
-f3ec57c01a3fc235fb3e19e83f6ceb3a *NEWS.md
+3ec49042ba64620858886c35bd539915 *NEWS.md
 a10c854d9621d4ebd9719fe06de6af92 *R/CVXR.R
 bdeccc507b3f9f68b5462d5d49284de7 *R/CVXcanon-R6.R
 7d729e9a5af3bc0292823e7f214e4198 *R/Deque.R
@@ -51,7 +51,7 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 34bbc17ccbb183bafd419235f463e8d1 *demo/worstcov.R
 c03ab67751be55098332ff780d762859 *inst/doc/cvxr_intro.R
 586882759abbb9c6a5b62778429fc988 *inst/doc/cvxr_intro.Rmd
-9bdec9fd721f1eeda62daa9826e4ac6c *inst/doc/cvxr_intro.html
+dbaa985694d1638205c17298709e1aaa *inst/doc/cvxr_intro.html
 0569ac13665504c9336226f133772115 *inst/extdata/lena512.png
 c4720ef0ee1dbc8293739e1e0019d745 *inst/extdata/lena512_corrupted.png
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
@@ -318,9 +318,9 @@ a61165f81ab5183a655a686bb3a4efd3 *tests/group01.R
 cf691e02736b9c9a6d29151a7db94321 *tests/group03.R
 59c3c00cf2a13aeff3b99a11d9bae3ac *tests/group04.R
 147bfc0296217129e1794ee88a328c02 *tests/manual/README
-9feeb06d38a50f5ee44b2121f9b99923 *tests/manual/test-constant_atoms.R
-bec6b9864ddd67d4328739324ad6902d *tests/manual/test-examples.R
-446fde2fcf19de4096cf654db903f503 *tests/manual/test-vignette.R
+9402a0b9af2764d3069e3cb9478f645f *tests/manual/test-constant_atoms.R
+d3c8f6558d75f4c9a8032f07598f24b9 *tests/manual/test-examples.R
+4938800754a46540c7747ea61d84974e *tests/manual/test-vignette.R
 a4161247048988fac20f0d0d5589d50b *tests/testthat/test-g01-atoms.R
 0d1015bb305561e8582f3bcf08fe6c0a *tests/testthat/test-g01-constraints.R
 6c32853b738f0e7b4bbc837a8a8fd3bf *tests/testthat/test-g01-convolution.R
@@ -332,7 +332,7 @@ f3520ccc72f2b6be4db0780c940cbd28 *tests/testthat/test-g01-expressions.R
 f6089b4facf4b8cadd3152da40ae522d *tests/testthat/test-g01-matrices.R
 8c7c48a7d80af7983065e0f2a4d1dcf6 *tests/testthat/test-g01-mip_vars.R
 39d6fa709e95d7457977b0af219ee0f5 *tests/testthat/test-g01-monotonicity.R
-282bcc99e7610218cd4ee71503007994 *tests/testthat/test-g01-non_optimal.R
+47ec68b338d67302e4b2572ca2decb8a *tests/testthat/test-g01-non_optimal.R
 42970861bb9b73a919433c6b1b74b83b *tests/testthat/test-g01-nonlinear_atoms.R
 722f3dcbf5102f4b021408dc0352c9b7 *tests/testthat/test-g01-objectives.R
 c7535d774369f2c63a76c641dcad44bb *tests/testthat/test-g01-problem.R
@@ -343,7 +343,7 @@ c7535d774369f2c63a76c641dcad44bb *tests/testthat/test-g01-problem.R
 300555ae3b4df6fc32a2a3c8d3be3b3d *tests/testthat/test-g01-sign.R
 0041c883d2610ac50d87b88149b5e536 *tests/testthat/test-g01-unpack_results.R
 ca3bee91daf69f63c8772ded25a2bffa *tests/testthat/test-g02-examples.R
-d919b8cc41678fa7f944b147f5e05e86 *tests/testthat/test-g03-test_ls.R
+2f47aec6fc419c0ccfb953364ea5add9 *tests/testthat/test-g03-test_ls.R
 b06648f30a29d6db229101d27407f536 *tests/testthat/test-g04-scs.R
 85c0e5370a5fcc6a7e3a8390e9fc56b0 *vignettes/bibtex/cvxr_refs.bib
 586882759abbb9c6a5b62778429fc988 *vignettes/cvxr_intro.Rmd
