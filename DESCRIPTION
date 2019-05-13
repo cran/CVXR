@@ -1,7 +1,7 @@
 Package: CVXR
 Type: Package
 Title: Disciplined Convex Optimization
-Version: 0.99-4
+Version: 0.99-5
 VignetteBuilder: knitr
 Authors@R: c(
            person("Anqi", "Fu",
@@ -32,7 +32,7 @@ Description: An object-oriented modeling language for disciplined convex
     and hands it off to an appropriate solver to obtain the solution.
 Depends: R (>= 3.4.0)
 Imports: methods, R6, Matrix, Rcpp (>= 0.12.12), bit64, gmp, Rmpfr,
-        R.utils, ECOSolveR (>= 0.4), scs (>= 1.2.3), stats
+        R.utils, ECOSolveR (>= 0.5.1), scs (>= 1.2.3), stats
 Suggests: knitr, rmarkdown, testthat, nnls, reticulate, lpSolveAPI,
         Rglpk, slam
 LinkingTo: Rcpp, RcppEigen
@@ -49,7 +49,7 @@ Collate: 'CVXR.R' 'data.R' 'globals.R' 'generics.R' 'utilities.R'
         'RcppExports.R' 'CVXcanon-R6.R' 'Deque.R' 'canonInterface.R'
 RoxygenNote: 6.1.1
 NeedsCompilation: yes
-Packaged: 2019-03-12 13:22:55 UTC; naras
+Packaged: 2019-05-13 14:00:10 UTC; naras
 Author: Anqi Fu [aut, cre],
   Balasubramanian Narasimhan [aut],
   Steven Diamond [aut],
@@ -58,4 +58,4 @@ Author: Anqi Fu [aut, cre],
   Paul Kunsberg Rosenfield [ctb]
 Maintainer: Anqi Fu <anqif@stanford.edu>
 Repository: CRAN
-Date/Publication: 2019-03-13 06:26:58 UTC
+Date/Publication: 2019-05-13 19:20:08 UTC

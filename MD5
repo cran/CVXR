@@ -1,7 +1,7 @@
-e4b289ce9502c474d522dfba7f695578 *DESCRIPTION
+211494a606403713c2917c7e90344cd3 *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
 100d8ce9282539e00fbd119a9952c04a *NAMESPACE
-3ec49042ba64620858886c35bd539915 *NEWS.md
+36851458eacf071c9e12357a47c09395 *NEWS.md
 a10c854d9621d4ebd9719fe06de6af92 *R/CVXR.R
 bdeccc507b3f9f68b5462d5d49284de7 *R/CVXcanon-R6.R
 7d729e9a5af3bc0292823e7f214e4198 *R/Deque.R
@@ -11,7 +11,7 @@ e839b522d71f3495596ef1555cdcbf3d *R/ProblemData-R6.R
 8cf2be42bb62d5b7d215bda36c32eb7f *R/R6List.R
 9400bb6138f7ac6aa3833005e11d034e *R/RcppExports.R
 4f32abe005665058cc3e5bfdbbf863c8 *R/affine.R
-40dc24cf684f9e6d35a5ddcd35d3a8be *R/atoms.R
+3f38407d819fe236faa58f4fe8f5df87 *R/atoms.R
 ee4127e542facc7d524a4aef0b01be56 *R/canonInterface.R
 f9c9547c7e22bd991266a8e570dfe136 *R/constant.R
 af24083bd551d96ddcee7a4be488227d *R/constraints.R
@@ -30,13 +30,13 @@ f410b72893d9996dbc7f7696f08a1e1c *R/mosek-solver.R
 9e949d72387950b79cd917dc9748d13f *R/problem.R
 6b844b60bcfac1d4954a3a370d1d2720 *R/problem_data.R
 2c95611003e147f1aa68e6a47d0675db *R/rcppUtils.R
-e8ade6c58e13d1b38591bd0f71c48c67 *R/solver.R
+8602ae94e806b1269f3b84d0954fb9e1 *R/solver.R
 9733787e5ee128bc82090ad00abda397 *R/solver_utilities.R
 2c425d978d3d8b7f4d5c0c36e2c663cb *R/transforms.R
 6de56c75e4f123d6195e5b0b969a7523 *R/utilities.R
 12674037cf1249ee4e96f7c4991ef419 *R/variable.R
 0cb641c10ef9bb1a1b4c9d0e6b99f35e *README.md
-0bce49484f6307717689896fe5dcac26 *build/vignette.rds
+35f54190e87ac36e714cc23321c6743a *build/vignette.rds
 2ac31d1cb9e554b9f439248e4439fad5 *cleanup
 bbb79a66ee2687f69a8d876989cd6ab9 *data/cdiac.rda
 3f3f6920c7f0a6b2e44b15263f7d5454 *data/dspop.rda
@@ -51,7 +51,7 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 34bbc17ccbb183bafd419235f463e8d1 *demo/worstcov.R
 c03ab67751be55098332ff780d762859 *inst/doc/cvxr_intro.R
 586882759abbb9c6a5b62778429fc988 *inst/doc/cvxr_intro.Rmd
-dbaa985694d1638205c17298709e1aaa *inst/doc/cvxr_intro.html
+e7aa2df1e750cdb30c5aafdddbdf8b3b *inst/doc/cvxr_intro.html
 0569ac13665504c9336226f133772115 *inst/extdata/lena512.png
 c4720ef0ee1dbc8293739e1e0019d745 *inst/extdata/lena512_corrupted.png
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
@@ -77,9 +77,9 @@ d9f34fc72a1f253e2997a6509c3a0e1b *man/Conv-class.Rd
 731dd9a542c97804edee9f65ed54d4d0 *man/DiagMat-class.Rd
 4ab7d33d13cde83bb41e7aab1b72a25f *man/DiagVec-class.Rd
 83b6085317aa3b57225dd87b65418766 *man/DivExpression-class.Rd
-ef0136eb7cfc95a6a6205746244644b6 *man/ECOS-class.Rd
+7bfc6953b538bf816520e05f14e8ddab *man/ECOS-class.Rd
 a54897671b2be22fbf9990ad628bcb87 *man/ECOS-status_map.Rd
-e578c3862e308224c2bd02cb6141b9be *man/ECOS_BB-class.Rd
+a807a3d11002d399cf1bfdf0739b11d3 *man/ECOS_BB-class.Rd
 d51f776a769bfae859e78ccbc441e089 *man/Elementwise-class.Rd
 d08ceffc238589eb926dd78a6107a834 *man/Entr-class.Rd
 df060185cb1aece83b3a8870206b6fe9 *man/EqConstraint-class.Rd
@@ -106,7 +106,7 @@ d25199b9b04fe8b24f6bc41433b19b8a *man/LeqConstraint-class.Rd
 e9a1754bf12208d6cef634ef4ec56cfd *man/Log-class.Rd
 4925c61c814e66e5e53e33466240dc54 *man/Log1p-class.Rd
 e2f0482f270899eea87d73b90970d452 *man/LogDet-class.Rd
-e63a2aadf4bc88368c1f3e4194ecf809 *man/LogSumExp-class.Rd
+ee82f6690602811dd799564688439412 *man/LogSumExp-class.Rd
 031706a995a9dae293e677b0fda20b55 *man/Logistic-class.Rd
 c2a72b0ec3b53441a0e22754b67b128c *man/MOSEK-class.Rd
 e17cad985505ec170dda551d169f51e3 *man/MOSEK-status_map.Rd
@@ -308,7 +308,7 @@ d0558bd5e20892761d7070e26f3059c3 *src/LinOpOperations.cpp
 f3ba64754b7c5da5e10c2ab18d93cac1 *src/ProblemData.h
 01a16775576266feb4e63392e0d10c7f *src/RcppCVXcanon.cpp
 e339c0decef58074bc71ea05abdd2ff7 *src/RcppConv.cpp
-a85129eae2171cd963aa8c560d268c3b *src/RcppExports.cpp
+c37b8372df43f69bf074ad4426453ad7 *src/RcppExports.cpp
 9aef87000bcb9bd9c4530176c602c4a3 *src/RcppLinOp.cpp
 1298f69f8b3bcb713c7c7553e9f6640a *src/RcppLinOpVector.cpp
 96dec4ab3f0f9db5b99cd157e0078f60 *src/RcppProblemData.cpp
