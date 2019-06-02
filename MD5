@@ -1,7 +1,7 @@
-211494a606403713c2917c7e90344cd3 *DESCRIPTION
+02283d1a7f6d8d4640430e2e1ac7185a *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
 100d8ce9282539e00fbd119a9952c04a *NAMESPACE
-36851458eacf071c9e12357a47c09395 *NEWS.md
+7a66798036563eb0e847dbb27e7c5b8a *NEWS.md
 a10c854d9621d4ebd9719fe06de6af92 *R/CVXR.R
 bdeccc507b3f9f68b5462d5d49284de7 *R/CVXcanon-R6.R
 7d729e9a5af3bc0292823e7f214e4198 *R/Deque.R
@@ -14,7 +14,7 @@ e839b522d71f3495596ef1555cdcbf3d *R/ProblemData-R6.R
 3f38407d819fe236faa58f4fe8f5df87 *R/atoms.R
 ee4127e542facc7d524a4aef0b01be56 *R/canonInterface.R
 f9c9547c7e22bd991266a8e570dfe136 *R/constant.R
-af24083bd551d96ddcee7a4be488227d *R/constraints.R
+e6b107edff253f577eae6204c9e58d40 *R/constraints.R
 85d439a032d03688d53386ab9fa6edb5 *R/data.R
 1f52be6957fd99a5b6eec69447da27ae *R/elementwise.R
 04c5c7059ced15691274ac02caedc74d *R/exports.R
@@ -51,12 +51,12 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 34bbc17ccbb183bafd419235f463e8d1 *demo/worstcov.R
 c03ab67751be55098332ff780d762859 *inst/doc/cvxr_intro.R
 586882759abbb9c6a5b62778429fc988 *inst/doc/cvxr_intro.Rmd
-e7aa2df1e750cdb30c5aafdddbdf8b3b *inst/doc/cvxr_intro.html
+f2011c34e41d36971c925ec14411e1f5 *inst/doc/cvxr_intro.html
 0569ac13665504c9336226f133772115 *inst/extdata/lena512.png
 c4720ef0ee1dbc8293739e1e0019d745 *inst/extdata/lena512_corrupted.png
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
 018e8645ca482ecf44d460f29265f2ef *inst/python/gurobiglue.py
-e6cfc9f9ff98d63576fe7b80b42a6200 *inst/python/mosekglue.py
+a3e98faf0f5bc4cdaea15c0e77c3b6d1 *inst/python/mosekglue.py
 4455ab17d98fc3ba14499c2ab721201b *inst/python/settings.py
 791aa9246963063266319f914f7cbc4e *man/Abs-class.Rd
 85cd4131ce55317f285d08a2e1816a6a *man/AddExpression-class.Rd
@@ -308,7 +308,7 @@ d0558bd5e20892761d7070e26f3059c3 *src/LinOpOperations.cpp
 f3ba64754b7c5da5e10c2ab18d93cac1 *src/ProblemData.h
 01a16775576266feb4e63392e0d10c7f *src/RcppCVXcanon.cpp
 e339c0decef58074bc71ea05abdd2ff7 *src/RcppConv.cpp
-c37b8372df43f69bf074ad4426453ad7 *src/RcppExports.cpp
+a85129eae2171cd963aa8c560d268c3b *src/RcppExports.cpp
 9aef87000bcb9bd9c4530176c602c4a3 *src/RcppLinOp.cpp
 1298f69f8b3bcb713c7c7553e9f6640a *src/RcppLinOpVector.cpp
 96dec4ab3f0f9db5b99cd157e0078f60 *src/RcppProblemData.cpp
@@ -342,8 +342,8 @@ c7535d774369f2c63a76c641dcad44bb *tests/testthat/test-g01-problem.R
 602539faddd6b296a8458e835f7e0468 *tests/testthat/test-g01-shape.R
 300555ae3b4df6fc32a2a3c8d3be3b3d *tests/testthat/test-g01-sign.R
 0041c883d2610ac50d87b88149b5e536 *tests/testthat/test-g01-unpack_results.R
-ca3bee91daf69f63c8772ded25a2bffa *tests/testthat/test-g02-examples.R
-2f47aec6fc419c0ccfb953364ea5add9 *tests/testthat/test-g03-test_ls.R
-b06648f30a29d6db229101d27407f536 *tests/testthat/test-g04-scs.R
+cf3edd66aee12b50e6529cfdedbb4eb1 *tests/testthat/test-g02-examples.R
+c88cfa53592a198f85cf412230e81269 *tests/testthat/test-g03-test_ls.R
+0e3d4705cd097723179f25c7e0d078bb *tests/testthat/test-g04-scs.R
 85c0e5370a5fcc6a7e3a8390e9fc56b0 *vignettes/bibtex/cvxr_refs.bib
 586882759abbb9c6a5b62778429fc988 *vignettes/cvxr_intro.Rmd
