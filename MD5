@@ -1,4 +1,4 @@
-02283d1a7f6d8d4640430e2e1ac7185a *DESCRIPTION
+74a145c2436949dc8c458e79dae22d09 *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
 100d8ce9282539e00fbd119a9952c04a *NAMESPACE
 7a66798036563eb0e847dbb27e7c5b8a *NEWS.md
@@ -30,13 +30,13 @@ f410b72893d9996dbc7f7696f08a1e1c *R/mosek-solver.R
 9e949d72387950b79cd917dc9748d13f *R/problem.R
 6b844b60bcfac1d4954a3a370d1d2720 *R/problem_data.R
 2c95611003e147f1aa68e6a47d0675db *R/rcppUtils.R
-8602ae94e806b1269f3b84d0954fb9e1 *R/solver.R
+96d27636e4422b49a1c078ed16c3017d *R/solver.R
 9733787e5ee128bc82090ad00abda397 *R/solver_utilities.R
 2c425d978d3d8b7f4d5c0c36e2c663cb *R/transforms.R
 6de56c75e4f123d6195e5b0b969a7523 *R/utilities.R
 12674037cf1249ee4e96f7c4991ef419 *R/variable.R
-0cb641c10ef9bb1a1b4c9d0e6b99f35e *README.md
-35f54190e87ac36e714cc23321c6743a *build/vignette.rds
+67c72533e44739663e43f365b8ffc6cd *README.md
+0f1344aa3ecf9156e67276ce6a035829 *build/vignette.rds
 2ac31d1cb9e554b9f439248e4439fad5 *cleanup
 bbb79a66ee2687f69a8d876989cd6ab9 *data/cdiac.rda
 3f3f6920c7f0a6b2e44b15263f7d5454 *data/dspop.rda
@@ -51,7 +51,7 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 34bbc17ccbb183bafd419235f463e8d1 *demo/worstcov.R
 c03ab67751be55098332ff780d762859 *inst/doc/cvxr_intro.R
 586882759abbb9c6a5b62778429fc988 *inst/doc/cvxr_intro.Rmd
-f2011c34e41d36971c925ec14411e1f5 *inst/doc/cvxr_intro.html
+cc97d1dbcf38cd37e5a529794daa08c5 *inst/doc/cvxr_intro.html
 0569ac13665504c9336226f133772115 *inst/extdata/lena512.png
 c4720ef0ee1dbc8293739e1e0019d745 *inst/extdata/lena512_corrupted.png
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
@@ -332,8 +332,8 @@ f3520ccc72f2b6be4db0780c940cbd28 *tests/testthat/test-g01-expressions.R
 f6089b4facf4b8cadd3152da40ae522d *tests/testthat/test-g01-matrices.R
 8c7c48a7d80af7983065e0f2a4d1dcf6 *tests/testthat/test-g01-mip_vars.R
 39d6fa709e95d7457977b0af219ee0f5 *tests/testthat/test-g01-monotonicity.R
-47ec68b338d67302e4b2572ca2decb8a *tests/testthat/test-g01-non_optimal.R
-42970861bb9b73a919433c6b1b74b83b *tests/testthat/test-g01-nonlinear_atoms.R
+6fc28a2e9e3f1c525f79d300902a28d2 *tests/testthat/test-g01-non_optimal.R
+0db6126331e5f3b6e49c62f820fb7116 *tests/testthat/test-g01-nonlinear_atoms.R
 722f3dcbf5102f4b021408dc0352c9b7 *tests/testthat/test-g01-objectives.R
 c7535d774369f2c63a76c641dcad44bb *tests/testthat/test-g01-problem.R
 88f65c187f98e647df76096a641c447f *tests/testthat/test-g01-quad_form.R

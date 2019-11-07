@@ -7,11 +7,12 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Anqi Fu, Balasubramanian Narasimhan and Stephen Boyd" />
 
-<meta name="date" content="2019-05-31" />
+<meta name="date" content="2019-11-06" />
 
 <title>Disciplined Convex Optimization in R</title>
 
@@ -270,7 +271,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -344,18 +344,6 @@ summary {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 
 
@@ -377,7 +365,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Disciplined Convex Optimization in R</h1>
 <h4 class="author">Anqi Fu, Balasubramanian Narasimhan and Stephen Boyd</h4>
-<h4 class="date">2019-05-31</h4>
+<h4 class="date">2019-11-06</h4>
 
 </div>
 
@@ -475,9 +463,6 @@ knitr::kable(m)</code></pre>
 <li>Step 0. Load the <code>CVXR</code> library</li>
 </ul>
 <pre class="r"><code>suppressWarnings(library(CVXR, warn.conflicts=FALSE))</code></pre>
-<pre><code>## Registered S3 method overwritten by &#39;R.oo&#39;:
-##   method        from       
-##   throw.default R.methodsS3</code></pre>
 <ul>
 <li>Step 1. Define the variable to be estimated</li>
 </ul>
@@ -966,7 +951,7 @@ knitr::kable(m)</code></pre>
 <h2>References</h2>
 <div id="refs" class="references">
 <div id="ref-fu:naras:boyd:2017">
-<p>Fu, Anqi, Balasubramanian Narasimhan, and Stephen Boyd. 2017. “CVXR: An R Package for Disciplined Convex Optimization.” <a href="https://web.stanford.edu/~boyd/papers/cvxr_paper.html">https://web.stanford.edu/~boyd/papers/cvxr_paper.html</a>.</p>
+<p>Fu, Anqi, Balasubramanian Narasimhan, and Stephen Boyd. 2017. “CVXR: An R Package for Disciplined Convex Optimization.” Working Paper. <a href="https://web.stanford.edu/~boyd/papers/cvxr_paper.html" class="uri">https://web.stanford.edu/~boyd/papers/cvxr_paper.html</a>.</p>
 </div>
 </div>
 </div>
@@ -988,6 +973,23 @@ $(document).ready(function () {
 
 
 </script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
