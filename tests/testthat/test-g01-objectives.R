@@ -1,3 +1,5 @@
+context("test-g01-objectives")
+
 x <- Variable(name = "x")
 y <- Variable(3, name = "y")
 z <- Variable(name = "z")

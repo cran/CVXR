@@ -11,7 +11,7 @@
 \alias{is_atom_concave,Logistic-method}
 \alias{is_incr,Logistic-method}
 \alias{is_decr,Logistic-method}
-\alias{graph_implementation,Logistic-method}
+\alias{.grad,Logistic-method}
 \title{The Logistic class.}
 \usage{
 Logistic(x)
@@ -28,23 +28,16 @@ Logistic(x)
 
 \S4method{is_decr}{Logistic}(object, idx)
 
-\S4method{graph_implementation}{Logistic}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{.grad}{Logistic}(object, values)
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} or numeric constant.}
 
 \item{object}{A \linkS4class{Logistic} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 This class represents the elementwise operation \eqn{\log(1 + e^x)}.
@@ -65,7 +58,7 @@ which is useful for logistic regression.
 
 \item \code{is_decr}: The atom is not weakly decreasing.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{

@@ -11,14 +11,21 @@
 \alias{constraints<-,Problem-method}
 \alias{value,Problem-method}
 \alias{value<-,Problem-method}
+\alias{status,Problem-method}
 \alias{is_dcp,Problem-method}
+\alias{is_dgp,Problem-method}
 \alias{is_qp,Problem-method}
 \alias{canonicalize,Problem-method}
+\alias{is_mixed_integer,Problem-method}
 \alias{variables,Problem-method}
 \alias{parameters,Problem-method}
 \alias{constants,Problem-method}
+\alias{atoms,Problem-method}
 \alias{size_metrics,Problem-method}
-\alias{get_problem_data,Problem,character-method}
+\alias{solver_stats,Problem-method}
+\alias{solver_stats<-,Problem-method}
+\alias{get_problem_data,Problem,character,logical-method}
+\alias{get_problem_data,Problem,character,missing-method}
 \alias{unpack_results,Problem-method}
 \title{The Problem class.}
 \usage{
@@ -36,11 +43,17 @@ Problem(objective, constraints = list())
 
 \S4method{value}{Problem}(object) <- value
 
+\S4method{status}{Problem}(object)
+
 \S4method{is_dcp}{Problem}(object)
+
+\S4method{is_dgp}{Problem}(object)
 
 \S4method{is_qp}{Problem}(object)
 
 \S4method{canonicalize}{Problem}(object)
+
+\S4method{is_mixed_integer}{Problem}(object)
 
 \S4method{variables}{Problem}(object)
 
@@ -48,24 +61,38 @@ Problem(objective, constraints = list())
 
 \S4method{constants}{Problem}(object)
 
+\S4method{atoms}{Problem}(object)
+
 \S4method{size_metrics}{Problem}(object)
 
-\S4method{get_problem_data}{Problem,character}(object, solver)
+\S4method{solver_stats}{Problem}(object)
 
-\S4method{unpack_results}{Problem}(object, solver, results_dict)
+\S4method{solver_stats}{Problem}(object) <- value
+
+\S4method{get_problem_data}{Problem,character,logical}(object, solver, gp)
+
+\S4method{get_problem_data}{Problem,character,missing}(object, solver, gp)
+
+\S4method{unpack_results}{Problem}(object, solution, chain, inverse_data)
 }
 \arguments{
 \item{objective}{A \linkS4class{Minimize} or \linkS4class{Maximize} object representing the optimization objective.}
 
 \item{constraints}{(Optional) A list of \linkS4class{Constraint} objects representing constraints on the optimization variables.}
 
-\item{object}{A \linkS4class{Problem} object.}
+\item{object}{A \linkS4class{Problem} class.}
 
 \item{value}{A \linkS4class{Minimize} or \linkS4class{Maximize} object (objective), list of \linkS4class{Constraint} objects (constraints), or numeric scalar (value).}
 
 \item{solver}{A string indicating the solver that the problem data is for. Call \code{installed_solvers()} to see all available.}
 
-\item{results_dict}{A list containing the solver output.}
+\item{gp}{Is the problem a geometric problem?}
+
+\item{solution}{A \linkS4class{Solution} object.}
+
+\item{chain}{The corresponding solving \linkS4class{Chain}.}
+
+\item{inverse_data}{A \linkS4class{InverseData} object or list containing data necessary for the inversion.}
 }
 \description{
 This class represents a convex optimization problem.
@@ -80,15 +107,21 @@ This class represents a convex optimization problem.
 
 \item \code{constraints<-}: Set the value of the problem constraints.
 
-\item \code{value}: The value from the last time the problem was solved.
+\item \code{value}: The value from the last time the problem was solved (or NA if not solved).
 
 \item \code{value<-}: Set the value of the optimal objective.
 
+\item \code{status}: The status from the last time the problem was solved.
+
 \item \code{is_dcp}: A logical value indicating whether the problem statisfies DCP rules.
+
+\item \code{is_dgp}: A logical value indicating whether the problem statisfies DGP rules.
 
 \item \code{is_qp}: A logical value indicating whether the problem is a quadratic program.
 
 \item \code{canonicalize}: The graph implementation of the problem.
+
+\item \code{is_mixed_integer}: logical value indicating whether the problem is a mixed integer program.
 
 \item \code{variables}: List of \linkS4class{Variable} objects in the problem.
 
@@ -96,7 +129,15 @@ This class represents a convex optimization problem.
 
 \item \code{constants}: List of \linkS4class{Constant} objects in the problem.
 
+\item \code{atoms}: List of \linkS4class{Atom} objects in the problem.
+
 \item \code{size_metrics}: Information about the size of the problem.
+
+\item \code{solver_stats}: Additional information returned by the solver.
+
+\item \code{solver_stats<-}: Set the additional information returned by the solver in the problem.
+
+\item \code{get_problem_data}: Get the problem data passed to the specified solver.
 
 \item \code{get_problem_data}: Get the problem data passed to the specified solver.
 

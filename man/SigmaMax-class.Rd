@@ -6,20 +6,23 @@
 \alias{.SigmaMax}
 \alias{SigmaMax}
 \alias{to_numeric,SigmaMax-method}
-\alias{size_from_args,SigmaMax-method}
+\alias{allow_complex,SigmaMax-method}
+\alias{dim_from_args,SigmaMax-method}
 \alias{sign_from_args,SigmaMax-method}
 \alias{is_atom_convex,SigmaMax-method}
 \alias{is_atom_concave,SigmaMax-method}
 \alias{is_incr,SigmaMax-method}
 \alias{is_decr,SigmaMax-method}
-\alias{graph_implementation,SigmaMax-method}
+\alias{.grad,SigmaMax-method}
 \title{The SigmaMax class.}
 \usage{
 SigmaMax(A = A)
 
 \S4method{to_numeric}{SigmaMax}(object, values)
 
-\S4method{size_from_args}{SigmaMax}(object)
+\S4method{allow_complex}{SigmaMax}(object)
+
+\S4method{dim_from_args}{SigmaMax}(object)
 
 \S4method{sign_from_args}{SigmaMax}(object)
 
@@ -31,23 +34,16 @@ SigmaMax(A = A)
 
 \S4method{is_decr}{SigmaMax}(object, idx)
 
-\S4method{graph_implementation}{SigmaMax}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{.grad}{SigmaMax}(object, values)
 }
 \arguments{
 \item{A}{An \linkS4class{Expression} or matrix.}
 
 \item{object}{A \linkS4class{SigmaMax} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 The maximum singular value of a matrix.
@@ -56,7 +52,9 @@ The maximum singular value of a matrix.
 \itemize{
 \item \code{to_numeric}: The largest singular value of \code{A}.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{allow_complex}: Does the atom handle complex numbers?
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The atom is positive.
 
@@ -68,7 +66,7 @@ The maximum singular value of a matrix.
 
 \item \code{is_decr}: The atom is not monotonic in any argument.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{

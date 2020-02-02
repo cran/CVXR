@@ -7,7 +7,7 @@
 \alias{min.Expression}
 \title{Minimum}
 \usage{
-min_entries(x, axis = NA_real_)
+min_entries(x, axis = NA_real_, keepdims = FALSE)
 
 \method{min}{Expression}(..., na.rm = FALSE)
 }
@@ -15,6 +15,8 @@ min_entries(x, axis = NA_real_)
 \item{x}{An \linkS4class{Expression}, vector, or matrix.}
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 
 \item{...}{Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.}
 
@@ -27,6 +29,11 @@ An \linkS4class{Expression} representing the minimum of the input.
 The minimum of an expression.
 }
 \examples{
+A <- Variable(2,2)
+val <- cbind(c(-5,2), c(-3,1))
+prob <- Problem(Maximize(min_entries(A)), list(A == val))
+result <- solve(prob)
+result$value
 A <- Variable(2,2)
 val <- cbind(c(-5,2), c(-3,1))
 prob <- Problem(Maximize(min_entries(A)), list(A == val))

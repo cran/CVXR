@@ -1,3 +1,4 @@
+context("test-g01-nonlinear_atoms")
 TOL <- 1e-6
 
 x <- Variable(2, name = "x")
@@ -49,12 +50,12 @@ test_that("Test a problem with KL-divergence", {
   kSeed <- 10
 
   # Generate a random reference distribution
-  set.seed(kSeed)
+  # set.seed(kSeed)
   npSPriors <- matrix(stats::runif(kK), nrow = kK, ncol = 1)
   npSPriors <- npSPriors/sum(npSPriors)
 
   # Reference distribution
-  p_refProb <- Parameter(kK, 1, sign = "positive")
+  p_refProb <- Parameter(kK, 1, nonneg = TRUE)
 
   # Distribution to be estimated
   v_prob <- Variable(kK, 1)
@@ -110,8 +111,7 @@ test_that("Test a problem with log", {
     p <- Problem(obj, list(sum(x) == 1))
     result <- solve(p, solver = "ECOS", verbose = TRUE)
     expect_equal(result$getValue(x), matrix(rep(1.0/n, n)), tolerance = TOL)
-    ## USE CVXPY param settings for SCS!
-    result <- solve(p, solver = "SCS", eps = 1e-4, acceleration_lookback = 10L, verbose = TRUE)
+    result <- solve(p, solver = "SCS", verbose = TRUE)
     expect_equal(result$getValue(x), matrix(rep(1.0/n, n)), tolerance = 1e-2)
   }
 })

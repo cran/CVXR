@@ -1,44 +1,6 @@
-# CVXR 0.99-6
+# CVXR 1.0
 
-* Mosek Glue modifications for MOSEK 8+, [issue 49](https://github.com/anqif/CVXR/issues/49).
-
-* Format constraints bug for MOSEK (`constraints.R`) where `CVXOPT`
-  and `MOSEK` were lumped together (thanks, Trevor Hastie).
-
-# CVXR 0.99-5
-
-* Bug fix for LogSumExp atom. This should address the issue reported
-  on [StackOverflow](https://stackoverflow.com/questions/55737567/extension-to-the-cvxr-example-cvxr-kelly-strategy-not-dcp-compliant)
-* Require ECOSolveR version 0.5.1 and above to avoid convolution
-  example failure on 32-bit platforms.
-
-# CVXR 0.99-4
-
-* Updated tests to check against `scs` version 1.2.3, which now
-  returns `optimal` rather than `optimal_inaccurrate` as it did
-  earlier (`test-g01-non_optimal.R#35`).
-
-* Some cleanup of manual tests. New SCS returns slightly different
-  values for `Sigma` in manual test (`test-vignette`#646) for
-  worst-case covariance example.
-
-# CVXR 0.99-3
-
-* Bug fix to MOSEK and GUROBI solver interfaces; dimensions now
-  converted to expected python types.
-* Sanitized src directory: proper naming of CVXR header to include
-  while compiling attributes with Rcpp.
-
-# CVXR 0.99-2
-
-* Typo fixes to URLs.
-
-# CVXR 0.99-1
-
-* Bug fix: Updated python glue for both version 2 and 3
-(`gurobiglue.py`)
-* Bug fix: Workaround for zero extent sparse matrices in R not being
-  handled by reticulate (`mosekglue.py`)
+* Major release implementing reductions, many new solvers.
 
 # CVXR 0.99
 

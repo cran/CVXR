@@ -5,41 +5,34 @@
 \alias{Parameter-class}
 \alias{.Parameter}
 \alias{Parameter}
-\alias{as.character,Parameter-method}
 \alias{get_data,Parameter-method}
 \alias{name,Parameter-method}
-\alias{size,Parameter-method}
-\alias{is_positive,Parameter-method}
-\alias{is_negative,Parameter-method}
-\alias{grad,Parameter-method}
-\alias{parameters,Parameter-method}
 \alias{value,Parameter-method}
 \alias{value<-,Parameter-method}
+\alias{grad,Parameter-method}
+\alias{parameters,Parameter-method}
 \alias{canonicalize,Parameter-method}
 \title{The Parameter class.}
 \usage{
-Parameter(rows = 1, cols = 1, name = NA_character_, sign = UNKNOWN,
-  value = NA_real_)
-
-\S4method{as.character}{Parameter}(x)
+Parameter(
+  rows = NULL,
+  cols = NULL,
+  name = NA_character_,
+  value = NA_real_,
+  ...
+)
 
 \S4method{get_data}{Parameter}(object)
 
-\S4method{name}{Parameter}(object)
-
-\S4method{size}{Parameter}(object)
-
-\S4method{is_positive}{Parameter}(object)
-
-\S4method{is_negative}{Parameter}(object)
-
-\S4method{grad}{Parameter}(object)
-
-\S4method{parameters}{Parameter}(object)
+\S4method{name}{Parameter}(x)
 
 \S4method{value}{Parameter}(object)
 
 \S4method{value}{Parameter}(object) <- value
+
+\S4method{grad}{Parameter}(object)
+
+\S4method{parameters}{Parameter}(object)
 
 \S4method{canonicalize}{Parameter}(object)
 }
@@ -50,34 +43,28 @@ Parameter(rows = 1, cols = 1, name = NA_character_, sign = UNKNOWN,
 
 \item{name}{(Optional) A character string representing the name of the parameter.}
 
-\item{sign}{(Optional) A character string indicating the sign of the parameter. Must be "ZERO", "POSITIVE", "NEGATIVE", or "UNKNOWN". Defaults to "UNKNOWN".}
-
 \item{value}{(Optional) A numeric element, vector, matrix, or data.frame. Defaults to \code{NA} and may be changed with \code{value<-} later.}
 
-\item{x, object}{A \linkS4class{Parameter} object.}
+\item{...}{Additional attribute arguments. See \linkS4class{Leaf} for details.}
+
+\item{object, x}{A \linkS4class{Parameter} object.}
 }
 \description{
 This class represents a parameter, either scalar or a matrix.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{get_data}: Returns \code{list(rows, cols, name, sign string, value)}.
+\item \code{get_data}: Returns \code{list(dim, name, value, attributes)}.
 
 \item \code{name}: The name of the parameter.
-
-\item \code{size}: The \code{c(rows, cols)} dimensions of the parameter.
-
-\item \code{is_positive}: Is the parameter non-negative?
-
-\item \code{is_negative}: Is the parameter non-positive?
-
-\item \code{grad}: An empty list since the gradient of a parameter is zero.
-
-\item \code{parameters}: Returns itself as a parameter.
 
 \item \code{value}: The value of the parameter.
 
 \item \code{value<-}: Set the value of the parameter.
+
+\item \code{grad}: An empty list since the gradient of a parameter is zero.
+
+\item \code{parameters}: Returns itself as a parameter.
 
 \item \code{canonicalize}: The canonical form of the parameter.
 }}
@@ -85,22 +72,18 @@ This class represents a parameter, either scalar or a matrix.
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{(Internal) A unique integer identification number used internally.}
-
 \item{\code{rows}}{The number of rows in the parameter.}
 
 \item{\code{cols}}{The number of columns in the parameter.}
 
 \item{\code{name}}{(Optional) A character string representing the name of the parameter.}
 
-\item{\code{sign_str}}{A character string indicating the sign of the parameter. Must be "ZERO", "POSITIVE", "NEGATIVE", or "UNKNOWN".}
-
 \item{\code{value}}{(Optional) A numeric element, vector, matrix, or data.frame. Defaults to \code{NA} and may be changed with \code{value<-} later.}
 }}
 
 \examples{
-x <- Parameter(3, name = "x0", sign="NEGATIVE") ## 3-vec negative
-is_positive(x)
-is_negative(x)
+x <- Parameter(3, name = "x0", nonpos = TRUE) ## 3-vec negative
+is_nonneg(x)
+is_nonpos(x)
 size(x)
 }

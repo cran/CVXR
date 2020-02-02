@@ -9,14 +9,21 @@
 Elementwise <- setClass("Elementwise", contains = c("VIRTUAL", "Atom"))
 
 #' @param object An \linkS4class{Elementwise} object.
-#' @describeIn Elementwise Check all the shapes are the same or can be promoted.
-setMethod("validate_args", "Elementwise", function(object) {
-  sum_shapes(lapply(object@args, function(arg) { size(arg) }))
+#' @describeIn Elementwise Dimensions is the same as the sum of the arguments' dimensions.
+setMethod("dim_from_args", "Elementwise", function(object) {
+  sum_dims(lapply(object@args, dim))
 })
 
-#' @describeIn Elementwise Size is the same as the sum of the arguments' sizes.
-setMethod("size_from_args", "Elementwise", function(object) {
-  sum_shapes(lapply(object@args, function(arg) { size(arg) }))
+#' @describeIn Elementwise Verify that all the dimensions are the same or can be promoted.
+setMethod("validate_args", "Elementwise", function(object) {
+  sum_dims(lapply(object@args, dim))
+  callNextMethod()
+})
+
+#' @describeIn Elementwise Is the expression symmetric?
+setMethod("is_symmetric", "Elementwise", function(object) {
+  symm_args <- all(sapply(object@args, is_symmetric))
+  return(nrow(object) == ncol(object) && symm_args)
 })
 
 #
@@ -28,7 +35,7 @@ setMethod("size_from_args", "Elementwise", function(object) {
 # @return A sparse matrix.
 # @rdname Elementwise-elemwise_grad_to_diag
 Elementwise.elemwise_grad_to_diag <- function(value, rows, cols) {
-  value <- as.numeric(value)
+  value <- as.vector(value)
   sparseMatrix(i = 1:rows, j = 1:cols, x = value, dims = c(rows, cols))
 }
 
@@ -37,12 +44,12 @@ Elementwise.elemwise_grad_to_diag <- function(value, rows, cols) {
 #
 # Promotes the LinOp if necessary.
 # @param arg The LinOp to promote.
-# @param size The desired size.
+# @param dim The desired dimensions.
 # @return The promoted LinOp.
 # @rdname Elementwise-promote
-Elementwise.promote <- function(arg, size) {
-  if(any(size(arg) != size))
-    lo.promote(arg, size)
+Elementwise.promote <- function(arg, dim) {
+  if(any(dim(arg) != dim))
+    lo.promote(arg, dim)
   else
     arg
 }
@@ -64,13 +71,16 @@ Abs <- function(x) { .Abs(x = x) }
 
 setMethod("initialize", "Abs", function(.Object, ..., x) {
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object An \linkS4class{Abs} object.
 #' @param values A list of arguments to the atom.
 #' @describeIn Abs The elementwise absolute value of the input.
 setMethod("to_numeric", "Abs", function(object, values) { abs(values[[1]]) })
+
+#' @describeIn Abs Does the atom handle complex numbers?
+setMethod("allow_complex", "Abs", function(object) { TRUE })
 
 #' @describeIn Abs The atom is positive.
 setMethod("sign_from_args", "Abs", function(object) { c(TRUE, FALSE) })
@@ -83,39 +93,24 @@ setMethod("is_atom_concave", "Abs", function(object) { FALSE })
 
 #' @param idx An index into the atom.
 #' @describeIn Abs A logical value indicating whether the atom is weakly increasing.
-setMethod("is_incr", "Abs", function(object, idx) { is_positive(object@args[[idx]]) })
+setMethod("is_incr", "Abs", function(object, idx) { is_nonneg(object@args[[idx]]) })
 
 #' @describeIn Abs A logical value indicating whether the atom is weakly decreasing.
-setMethod("is_decr", "Abs", function(object, idx) { is_negative(object@args[[idx]]) })
+setMethod("is_decr", "Abs", function(object, idx) { is_nonpos(object@args[[idx]]) })
 
 #' @describeIn Abs Is \code{x} piecewise linear?
-setMethod("is_pwl", "Abs", function(object) { is_pwl(object@args[[1]]) })
+setMethod("is_pwl", "Abs", function(object) { 
+  is_pwl(object@args[[1]]) && (is_real(object@args[[1]]) || is_imag(object@args[[1]]))
+})
 
 setMethod(".grad", "Abs", function(object, values) {
   # Grad: +1 if positive, -1 if negative
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
-
-  arg_size <- size(object@args[[1]])
-  D <- matrix(0, nrow = arg_size[1], ncol = arg_size[2])
+  rows <- size(expr(object))
+  cols <- size(object)
+  D <- array(0, dim = dim(expr(object)))
   D <- D + (values[[1]] > 0)
   D <- D - (values[[1]] < 0)
   list(Elementwise.elemwise_grad_to_diag(D, rows, cols))
-})
-
-Abs.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  t <- create_var(size(x))
-  constraints <- list(create_geq(lo.sum_expr(list(x, t))), create_leq(x, t))
-  list(t, constraints)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Abs The graph implementation of the atom.
-setMethod("graph_implementation", "Abs", function(object, arg_objs, size, data = NA_real_) {
-  Abs.graph_implementation(arg_objs, size, data)
 })
 
 #'
@@ -135,7 +130,7 @@ Entr <- function(x) { .Entr(x = x) }
 
 setMethod("initialize", "Entr", function(.Object, ..., x) {
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object An \linkS4class{Entr} object.
@@ -153,6 +148,8 @@ setMethod("to_numeric", "Entr", function(object, values) {
 
   # Return -Inf outside the domain
   results[is.na(results)] <- -Inf
+  if(all(dim(results) == 1))
+    results <- as.vector(results)
   results
 })
 
@@ -172,9 +169,11 @@ setMethod("is_incr", "Entr", function(object, idx) { FALSE })
 #' @describeIn Entr The atom is weakly decreasing.
 setMethod("is_decr", "Entr", function(object, idx) { FALSE })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn Entr Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Entr", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
 
   # Outside domain or on boundary
   if(min(values[[1]]) <= 0)
@@ -185,22 +184,8 @@ setMethod(".grad", "Entr", function(object, values) {
   }
 })
 
+#' @describeIn Entr Returns constraints descrbing the domain of the node
 setMethod(".domain", "Entr", function(object) { list(object@args[[1]] >= 0) })
-
-Entr.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  t <- create_var(size)
-  x <- arg_objs[[1]]
-  ones <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  list(t, list(ExpCone(t, x, ones)))
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Entr The graph implementation of the atom.
-setMethod("graph_implementation", "Entr", function(object, arg_objs, size, data = NA_real_) {
-  Entr.graph_implementation(arg_objs, size, data)
-})
 
 #'
 #' The Exp class.
@@ -219,7 +204,7 @@ Exp <- function(x) { .Exp(x = x) }
 
 setMethod("initialize", "Exp", function(.Object, ..., x) {
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object An \linkS4class{Exp} object.
@@ -236,6 +221,12 @@ setMethod("is_atom_convex", "Exp", function(object) { TRUE })
 #' @describeIn Exp The atom is not concave.
 setMethod("is_atom_concave", "Exp", function(object) { FALSE })
 
+#' @describeIn Exp Is the atom log-log convex?
+setMethod("is_atom_log_log_convex", "Exp", function(object) { TRUE })
+
+#' @describeIn Exp Is the atom log-log concave?
+setMethod("is_atom_log_log_concave", "Exp", function(object) { FALSE })
+
 #' @param idx An index into the atom.
 #' @describeIn Exp The atom is weakly increasing.
 setMethod("is_incr", "Exp", function(object, idx) { TRUE })
@@ -243,26 +234,13 @@ setMethod("is_incr", "Exp", function(object, idx) { TRUE })
 #' @describeIn Exp The atom is not weakly decreasing.
 setMethod("is_decr", "Exp", function(object, idx) { FALSE })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn Exp Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Exp", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
   grad_vals <- exp(values[[1]])
   list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
-})
-
-Exp.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  t <- create_var(size)
-  x <- arg_objs[[1]]
-  ones <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  list(t, list(ExpCone(x, ones, t)))
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Exp The graph implementation of the atom.
-setMethod("graph_implementation", "Exp", function(object, arg_objs, size, data = NA_real_) {
-  Exp.graph_implementation(arg_objs, size, data)
 })
 
 #'
@@ -289,13 +267,7 @@ Huber <- function(x, M = 1) { .Huber(x = x, M = M) }
 setMethod("initialize", "Huber", function(.Object, ..., x, M = 1) {
   .Object@M <- as.Constant(M)
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
-})
-
-#' @describeIn Huber Check that \code{M} is a non-negative constant.
-setMethod("validate_args", "Huber", function(object) {
-  if(!(is_positive(object@M) && is_constant(object@M) && is_scalar(object@M)))
-    stop("M must be a non-negative scalar constant")
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object A \linkS4class{Huber} object.
@@ -314,11 +286,15 @@ setMethod("to_numeric", "Huber", function(object, values) {
   M_val <- value(object@M)
   val <- values[[1]]
   if(is.null(dim(val)))
-    2*huber_loss(M_val, val)
+    result <- 2*huber_loss(M_val, val)
   else if(is.vector(val))
-    2*sapply(val, function(v) { huber_loss(M_val, v) })
+    result <- 2*sapply(val, function(v) { huber_loss(M_val, v) })
   else
-    2*apply(val, c(1,2), function(v) { huber_loss(M_val, v) })
+    result <- 2*apply(val, 1:length(dim(val)), function(v) { huber_loss(M_val, v) })
+  
+  if(all(dim(result) == 1))
+    result <- as.vector(result)
+  return(result)
 })
 
 #' @describeIn Huber The atom is positive.
@@ -332,17 +308,29 @@ setMethod("is_atom_concave", "Huber", function(object) { FALSE })
 
 #' @param idx An index into the atom.
 #' @describeIn Huber A logical value indicating whether the atom is weakly increasing.
-setMethod("is_incr", "Huber", function(object, idx) { is_positive(object@args[[idx]]) })
+setMethod("is_incr", "Huber", function(object, idx) { is_nonneg(object@args[[idx]]) })
 
 #' @describeIn Huber A logical value indicating whether the atom is weakly decreasing.
-setMethod("is_decr", "Huber", function(object, idx) { is_negative(object@args[[idx]]) })
+setMethod("is_decr", "Huber", function(object, idx) { is_nonpos(object@args[[idx]]) })
+
+#' @describeIn Huber The atom is quadratic if \code{x} is affine.
+setMethod("is_quadratic", "Huber", function(object) { is_affine(object@args[[1]]) })
 
 #' @describeIn Huber A list containing the parameter \code{M}.
 setMethod("get_data", "Huber", function(object) { list(object@M) })
 
+#' @describeIn Huber Check that \code{M} is a non-negative constant.
+setMethod("validate_args", "Huber", function(object) {
+  if(!(is_nonneg(object@M) && is_constant(object@M) && is_scalar(object@M)))
+    stop("M must be a non-negative scalar constant")
+  callNextMethod()
+})
+
+#' @param values A list of numeric values for the arguments
+#' @describeIn Huber Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Huber", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
 
   val_abs <- abs(values[[1]])
   M_val <- as.numeric(value(object@M))
@@ -352,42 +340,7 @@ setMethod(".grad", "Huber", function(object, values) {
   list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
 })
 
-Huber.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  M <- data[[1]]
-  x <- arg_objs[[1]]
-  n <- create_var(size)
-  s <- create_var(size)
-  two <- create_const(2, c(1,1))
-
-  if(is(M, "Parameter"))
-    M <- create_param(M, c(1,1))
-  else   # M is constant
-    M <- create_const(value(M), c(1,1))
-
-  # n^2 + 2*M*|s|
-  power_graph <- Power.graph_implementation(list(n), size, list(2, c(as.bigq(1,2), as.bigq(1,2)) ))  # TODO: Check last argument is correct nested list
-  n2 <- power_graph[[1]]
-  constr_sq <- power_graph[[2]]
-  abs_graph <- Abs.graph_implementation(list(s), size)
-  abs_s <- abs_graph[[1]]
-  constr_abs <- abs_graph[[2]]
-  M_abs_s <- lo.mul_expr(M, abs_s, size)
-  obj <- lo.sum_expr(list(n2, lo.mul_expr(two, M_abs_s, size)))
-
-  # x == s + n
-  constraints <- c(constr_sq, constr_abs)
-  constraints <- c(constraints, list(create_eq(x, lo.sum_expr(list(n, s)))))
-  list(obj, constraints)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Huber The graph implementation of the atom.
-setMethod("graph_implementation", "Huber", function(object, arg_objs, size, data = NA_real_) {
-  Huber.graph_implementation(arg_objs, size, data)
-})
-
+# x^{-1} for x > 0.
 InvPos <- function(x) { Power(x, -1) }
 
 #'
@@ -410,7 +363,7 @@ KLDiv <- function(x, y) { .KLDiv(x = x, y = y) }
 setMethod("initialize", "KLDiv", function(.Object, ..., x, y) {
   .Object@x <- x
   .Object@y <- y
-  callNextMethod(.Object, ..., args = list(.Object@x, .Object@y))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x, .Object@y))
 })
 
 #' @param object A \linkS4class{KLDiv} object.
@@ -445,6 +398,8 @@ setMethod("is_incr", "KLDiv", function(object, idx) { FALSE })
 #' @describeIn KLDiv The atom is not monotonic in any argument.
 setMethod("is_decr", "KLDiv", function(object, idx) { FALSE })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn KLDiv Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "KLDiv", function(object, values) {
   if(min(values[[1]]) <= 0 || min(values[[2]]) <= 0)
     return(list(NA_real_, NA_real_))   # Non-differentiable
@@ -453,34 +408,16 @@ setMethod(".grad", "KLDiv", function(object, values) {
     grad_vals <- list(log(div), 1-div)
     grad_list <- list()
     for(idx in 1:length(values)) {
-      rows <- prod(size(object@args[[idx]]))
-      cols <- prod(size(object))
+      rows <- size(object@args[[idx]])
+      cols <- size(object)
       grad_list <- c(grad_list, list(Elementwise.elemwise_grad_to_diag(grad_vals[[idx]], rows, cols)))
     }
     return(grad_list)
   }
 })
 
+#' @describeIn KLDiv Returns constraints describng the domain of the node
 setMethod(".domain", "KLDiv", function(object) { list(object@args[[1]] >= 0, object@args[[2]] >= 0) })
-
-KLDiv.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- Elementwise.promote(arg_objs[[1]], size)
-  y <- Elementwise.promote(arg_objs[[2]], size)
-  t <- create_var(size)
-  constraints <- list(ExpCone(t, x, y), create_geq(y))   # y >= 0
-
-  # -t - x + y
-  obj <- lo.sub_expr(y, lo.sum_expr(list(x, t)))
-  list(obj, constraints)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn KLDiv The graph implementation of the atom.
-setMethod("graph_implementation", "KLDiv", function(object, arg_objs, size, data = NA_real_) {
-  KLDiv.graph_implementation(arg_objs, size, data)
-})
 
 #'
 #' The Log class.
@@ -499,7 +436,7 @@ Log <- function(x) { .Log(x = x) }
 
 setMethod("initialize", "Log", function(.Object, ..., x) {
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object A \linkS4class{Log} object.
@@ -516,6 +453,12 @@ setMethod("is_atom_convex", "Log", function(object) { FALSE })
 #' @describeIn Log The atom is concave.
 setMethod("is_atom_concave", "Log", function(object) { TRUE })
 
+#' @describeIn Log Is the atom log-log convex?
+setMethod("is_atom_log_log_convex", "Log", function(object) { FALSE })
+
+#' @describeIn Log Is the atom log-log concave?
+setMethod("is_atom_log_log_concave", "Log", function(object) { TRUE })
+
 #' @param idx An index into the atom.
 #' @describeIn Log The atom is weakly increasing.
 setMethod("is_incr", "Log", function(object, idx) { TRUE })
@@ -523,9 +466,11 @@ setMethod("is_incr", "Log", function(object, idx) { TRUE })
 #' @describeIn Log The atom is not weakly decreasing.
 setMethod("is_decr", "Log", function(object, idx) { FALSE })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn Log Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Log", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
 
   # Outside domain or on boundary
   if(min(values[[1]]) <= 0)
@@ -536,22 +481,8 @@ setMethod(".grad", "Log", function(object, values) {
   }
 })
 
+#' @describeIn Log Returns constraints describng the domain of the node
 setMethod(".domain", "Log", function(object) { list(object@args[[1]] >= 0) })
-
-Log.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  t <- create_var(size)
-  x <- arg_objs[[1]]
-  ones <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  list(t, list(ExpCone(t, ones, x)))
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Log The graph implementation of the atom.
-setMethod("graph_implementation", "Log", function(object, arg_objs, size, data = NA_real_) {
-  Log.graph_implementation(arg_objs, size, data)
-})
 
 #'
 #' The Log1p class.
@@ -574,37 +505,25 @@ Log1p <- function(x) { .Log1p(x = x) }
 setMethod("to_numeric", "Log1p", function(object, values) { log(1 + values[[1]]) })
 
 #' @describeIn Log1p The sign of the atom.
-setMethod("sign_from_args", "Log1p", function(object) { c(is_positive(object@args[[1]]), is_negative(object@args[[1]])) })
+setMethod("sign_from_args", "Log1p", function(object) { c(is_nonneg(object@args[[1]]), is_nonpos(object@args[[1]])) })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn Log1p Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Log1p", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
 
-  # Outside domain or on boundary
+  # Outside domain or on boundary.
   if(min(values[[1]]) <= -1)
-    return(list(NA_real_))   # Non-differentiable
+    return(list(NA_real_))   # Non-differentiable.
   else {
     grad_vals <- 1.0/(values[[1]] + 1)
     return(list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols)))
   }
 })
 
+#' @describeIn Log1p Returns constraints describng the domain of the node
 setMethod(".domain", "Log1p", function(object) { list(object@args[[1]] >= -1) })
-
-Log1p.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  ones <- create_const(matrix(1, nrow = x$size[1], ncol = x$size[2]), x$size)
-  xp1 <- lo.sum_expr(list(x, ones))
-  Log.graph_implementation(list(xp1), size, data)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Log1p The graph implementation of the atom.
-setMethod("graph_implementation", "Log1p", function(object, arg_objs, size, data = NA_real_) {
-  Log1p.graph_implementation(arg_objs, size, data)
-})
 
 #'
 #' The Logistic class.
@@ -617,7 +536,7 @@ setMethod("graph_implementation", "Log1p", function(object, arg_objs, size, data
 #' @name Logistic-class
 #' @aliases Logistic
 #' @rdname Logistic-class
-.Logistic <- setClass("Logistic", representation(x = "Expression"), contains = "Elementwise")
+.Logistic <- setClass("Logistic", representation(x = "ConstValORExpr"), contains = "Elementwise")
 
 #' @param x An \linkS4class{Expression} or numeric constant.
 #' @rdname Logistic-class
@@ -625,7 +544,7 @@ Logistic <- function(x) { .Logistic(x = x) }
 
 setMethod("initialize", "Logistic", function(.Object, ..., x) {
   .Object@x <- x
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
 
 #' @param object A \linkS4class{Logistic} object.
@@ -649,39 +568,14 @@ setMethod("is_incr", "Logistic", function(object, idx) { TRUE })
 #' @describeIn Logistic The atom is not weakly decreasing.
 setMethod("is_decr", "Logistic", function(object, idx) { FALSE })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn Logistic Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Logistic", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
   exp_val <- exp(values[[1]])
   grad_vals <- exp_val/(1 + exp_val)
   list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
-})
-
-Logistic.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  t <- create_var(size)
-
-  # log(1 + exp(x)) <= t <=> exp(-t) + exp(x - t) <= 1
-  graph0 <- Exp.graph_implementation(list(lo.neg_expr(t)), size)
-  obj0 <- graph0[[1]]
-  constr0 <- graph0[[2]]
-
-  graph1 <- Exp.graph_implementation(list(lo.sub_expr(x, t)), size)
-  obj1 <- graph1[[1]]
-  constr1 <- graph1[[2]]
-
-  lhs <- lo.sum_expr(list(obj0, obj1))
-  ones <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  constr <- c(constr0, constr1, list(create_leq(lhs, ones)))
-  list(t, constr)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Logistic The graph implementation of the atom.
-setMethod("graph_implementation", "Logistic", function(object, arg_objs, size, data = NA_real_) {
-  Logistic.graph_implementation(arg_objs, size, data)
 })
 
 #'
@@ -705,7 +599,7 @@ setMethod("graph_implementation", "Logistic", function(object, arg_objs, size, d
 #' @param arg2 The second \linkS4class{Expression} in the maximum operation.
 #' @param ... Additional \linkS4class{Expression} objects in the maximum operation.
 #' @rdname MaxElemwise-class
-MaxElemwise <- function(arg1, arg2, ...) { .MaxElemwise(args = list(arg1, arg2, ...)) }
+MaxElemwise <- function(arg1, arg2, ...) { .MaxElemwise(atom_args = list(arg1, arg2, ...)) }
 
 #' @param object A \linkS4class{MaxElemwise} object.
 #' @param values A list of arguments to the atom.
@@ -717,8 +611,15 @@ setMethod("to_numeric", "MaxElemwise", function(object, values) {
 
 #' @describeIn MaxElemwise The sign of the atom.
 setMethod("sign_from_args", "MaxElemwise", function(object) {
-  is_pos <- any(sapply(object@args, function(arg) { is_positive(arg) }))
-  is_neg <- all(sapply(object@args, function(arg) { is_negative(arg) }))
+  # Reduces the list of argument signs according to the following rules:
+  #    NONNEGATIVE, ANYTHING = NONNEGATIVE
+  #    ZERO, UNKNOWN = NONNEGATIVE
+  #    ZERO, ZERO = ZERO
+  #    ZERO, NONPOSITIVE = ZERO
+  #    UNKNOWN, NONPOSITIVE = UNKNOWN
+  #    NONPOSITIVE, NONPOSITIVE = NONPOSITIVE
+  is_pos <- any(sapply(object@args, is_nonneg))
+  is_neg <- all(sapply(object@args, is_nonpos))
   c(is_pos, is_neg)
 })
 
@@ -728,6 +629,12 @@ setMethod("is_atom_convex", "MaxElemwise", function(object) { TRUE })
 #' @describeIn MaxElemwise The atom is not concave.
 setMethod("is_atom_concave", "MaxElemwise", function(object) { FALSE })
 
+#' @describeIn MaxElemwise Is the atom log-log convex?
+setMethod("is_atom_log_log_convex", "MaxElemwise", function(object) { TRUE })
+
+#' @describeIn MaxElemwise Is the atom log-log concave?
+setMethod("is_atom_log_log_concave", "MaxElemwise", function(object) { FALSE })
+
 #' @param idx An index into the atom.
 #' @describeIn MaxElemwise The atom is weakly increasing.
 setMethod("is_incr", "MaxElemwise", function(object, idx) { TRUE })
@@ -736,52 +643,128 @@ setMethod("is_incr", "MaxElemwise", function(object, idx) { TRUE })
 setMethod("is_decr", "MaxElemwise", function(object, idx) { FALSE })
 
 #' @describeIn MaxElemwise Are all the arguments piecewise linear?
-setMethod("is_pwl", "MaxElemwise", function(object) { all(sapply(object@args, function(arg) { is_pwl(arg) })) })
+setMethod("is_pwl", "MaxElemwise", function(object) { all(sapply(object@args, is_pwl)) })
 
+#' @param values A list of numeric values for the arguments
+#' @describeIn MaxElemwise Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "MaxElemwise", function(object, values) {
   max_vals <- to_numeric(object, values)
-  dims <- dim(max_vals)
-  if(is.null(dims))
+  vals_dim <- dim(max_vals)
+  if(is.null(vals_dim))
     unused <- matrix(TRUE, nrow = length(max_vals), ncol = 1)
   else
-    unused <- matrix(TRUE, nrow = dims[1], ncol = dims[2])
+    unused <- array(TRUE, dim = vals_dim)
   grad_list <- list()
   idx <- 1
   for(value in values) {
-    rows <- prod(size(object@args[[idx]]))
-    cols <- prod(size(object))
+    rows <- size(object@args[[idx]])
+    cols <- size(object)
     grad_vals <- (value == max_vals) & unused
 
     # Remove all the max_vals that were used
     unused[value == max_vals] <- FALSE
     grad_list <- c(grad_list, list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols)))
+    idx <- idx + 1
   }
   grad_list
 })
 
-MaxElemwise.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  t <- create_var(size)
-  constraints <- lapply(arg_objs, function(obj) {
-    obj <- Elementwise.promote(obj, size)
-    create_leq(obj, t)
-  })
-  list(t, constraints)
-}
+#'
+#' The MinElemwise class.
+#'
+#' This class represents the elementwise minimum.
+#'
+#' @slot arg1 The first \linkS4class{Expression} in the minimum operation.
+#' @slot arg2 The second \linkS4class{Expression} in the minimum operation.
+#' @slot ... Additional \linkS4class{Expression} objects in the minimum operation.
+#' @name MinElemwise-class
+#' @aliases MinElemwise
+#' @rdname MinElemwise-class
+.MinElemwise <- setClass("MinElemwise", validity = function(object) {
+                  if(is.null(object@args) || length(object@args) < 2)
+                    stop("[MinElemwise: validation] args must have at least 2 arguments")
+                  return(TRUE)
+                }, contains = "Elementwise")
 
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn MaxElemwise The graph implementation of the atom.
-setMethod("graph_implementation", "MaxElemwise", function(object, arg_objs, size, data = NA_real_) {
-  MaxElemwise.graph_implementation(arg_objs, size, data)
+#' @param arg1 The first \linkS4class{Expression} in the minimum operation.
+#' @param arg2 The second \linkS4class{Expression} in the minimum operation.
+#' @param ... Additional \linkS4class{Expression} objects in the minimum operation.
+#' @rdname MinElemwise-class
+MinElemwise <- function(arg1, arg2, ...) { .MinElemwise(atom_args = list(arg1, arg2, ...)) }
+
+#' @param object A \linkS4class{MinElemwise} object.
+#' @param values A list of arguments to the atom.
+#' @describeIn MinElemwise The elementwise minimum.
+setMethod("to_numeric", "MinElemwise", function(object, values) {
+  # Reduce(function(x, y) { ifelse(x <= y, x, y) }, values)
+  Reduce("pmin", values)
 })
 
-MinElemwise <- function(arg1, arg2, ...) {
-  min_args <- lapply(c(list(arg1), list(arg2), list(...)), function(arg) { -as.Constant(arg) })
-  -.MaxElemwise(args = min_args)
-}
+#' @describeIn MinElemwise The sign of the atom.
+setMethod("sign_from_args", "MinElemwise", function(object) {
+  is_pos <- all(sapply(object@args, is_nonneg))
+  is_neg <- any(sapply(object@args, is_nonpos))
+  c(is_pos, is_neg)
+})
 
+#' @describeIn MinElemwise The atom is not convex.
+setMethod("is_atom_convex", "MinElemwise", function(object) { FALSE })
+
+#' @describeIn MinElemwise The atom is not concave.
+setMethod("is_atom_concave", "MinElemwise", function(object) { TRUE })
+
+#' @describeIn MinElemwise Is the atom log-log convex?
+setMethod("is_atom_log_log_convex", "MinElemwise", function(object) { FALSE })
+
+#' @describeIn MinElemwise Is the atom log-log concave?
+setMethod("is_atom_log_log_concave", "MinElemwise", function(object) { TRUE })
+
+#' @param idx An index into the atom.
+#' @describeIn MinElemwise The atom is weakly increasing.
+setMethod("is_incr", "MinElemwise", function(object, idx) { TRUE })
+
+#' @describeIn MinElemwise The atom is not weakly decreasing.
+setMethod("is_decr", "MinElemwise", function(object, idx) { FALSE })
+
+#' @describeIn MinElemwise Are all the arguments piecewise linear?
+setMethod("is_pwl", "MinElemwise", function(object) { all(sapply(object@args, is_pwl)) })
+
+#' @param values A list of numeric values for the arguments
+#' @describeIn MinElemwise Gives the (sub/super)gradient of the atom w.r.t. each variable
+setMethod(".grad", "MinElemwise", function(object, values) {
+  min_vals <- to_numeric(object, values)
+  vals_dim <- dim(min_vals)
+  if(is.null(vals_dim))
+    unused <- matrix(TRUE, nrow = length(min_vals), ncol = 1)
+  else
+    unused <- array(TRUE, dim = vals_dim)
+  grad_list <- list()
+  idx <- 1
+  for(value in values) {
+    rows <- size(object@args[[idx]])
+    cols <- size(object)
+    grad_vals <- (value == min_vals) & unused
+    
+    # Remove all the min_vals that were used
+    unused[value == min_vals] <- FALSE
+    grad_list <- c(grad_list, list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols)))
+    idx <- idx + 1
+  }
+  grad_list
+})
+#' 
+#' An alias for -MinElemwise(x, 0)
+#' 
+#' @param x An R numeric value or \linkS4class{Expression}.
+#' @return An alias for -MinElemwise(x, 0)
+#' @rdname Neg-int
 Neg <- function(x) { -MinElemwise(x, 0) }
+#' 
+#' An alias for MaxElemwise(x, 0)
+#'
+#' @param x An R numeric value or \linkS4class{Expression}.
+#' @return An alias for MaxElemwise(x, 0)
+#' @rdname Pos-int
 Pos <- function(x) { MaxElemwise(x, 0) }
 
 #'
@@ -857,14 +840,8 @@ setMethod("initialize", "Power", function(.Object, ..., x, p, max_denom = 1024, 
 
   .Object@x <- x
   .Object@max_denom <- max_denom
-  callNextMethod(.Object, ..., args = list(.Object@x))
+  callNextMethod(.Object, ..., atom_args = list(.Object@x))
 })
-
-#' @describeIn Power Verification of arguments happens during initialization.
-setMethod("validate_args", "Power", function(object) { return() })
-
-#' @describeIn Power A list containing the output of \code{pow_low, pow_mid}, or \code{pow_high} depending on the input power.
-setMethod("get_data", "Power", function(object) { list(object@p, object@w) })
 
 #' @param object A \linkS4class{Power} object.
 #' @param values A list of arguments to the atom.
@@ -873,7 +850,7 @@ setMethod("to_numeric", "Power", function(object, values) {
   # Throw error if negative and Power doesn't handle that
   if(object@p < 0 && min(values[[1]]) <= 0)
     stop("Power cannot be applied to negative or zero values")
-  else if(is_power2(object@p) && object@p != 0 && min(values[[1]]) < 0)
+  else if(!is_power2(object@p) && object@p != 0 && min(values[[1]]) < 0)
     stop("Power cannot be applied to negative values")
   else
     return(values[[1]]^(as.double(object@p)))
@@ -882,16 +859,28 @@ setMethod("to_numeric", "Power", function(object, values) {
 #' @describeIn Power The sign of the atom.
 setMethod("sign_from_args", "Power", function(object) {
   if(object@p == 1)   # Same as input
-    c(is_positive(object@args[[1]]), is_negative(object@args[[1]]))
+    c(is_nonneg(object@args[[1]]), is_nonpos(object@args[[1]]))
   else   # Always positive
     c(TRUE, FALSE)
 })
 
 #' @describeIn Power Is \eqn{p \leq 0} or \eqn{p \geq 1}?
-setMethod("is_atom_convex", "Power", function(object) { object@p <= 0 || object@p >= 1 })
+setMethod("is_atom_convex", "Power", function(object) { 
+  # p == 0 is affine here.
+  object@p <= 0 || object@p >= 1 
+})
 
 #' @describeIn Power Is \eqn{p \geq 0} or \eqn{p \leq 1}?
-setMethod("is_atom_concave", "Power", function(object) { object@p >= 0 && object@p <= 1 })
+setMethod("is_atom_concave", "Power", function(object) {
+  # p == 0 is affine here.
+  object@p >= 0 && object@p <= 1 
+})
+
+#' @describeIn Power Is the atom log-log convex?
+setMethod("is_atom_log_log_convex", "Power", function(object) { TRUE })
+
+#' @describeIn Power Is the atom log-log concave?
+setMethod("is_atom_log_log_concave", "Power", function(object) { TRUE })
 
 #' @describeIn Power A logical value indicating whether the atom is constant.
 setMethod("is_constant", "Power", function(object) { object@p == 0 || callNextMethod() })
@@ -903,7 +892,7 @@ setMethod("is_incr", "Power", function(object, idx) {
     return(TRUE)
   else if(object@p > 1) {
     if(is_power2(object@p))
-      return(is_positive(object@args[[idx]]))
+      return(is_nonneg(object@args[[idx]]))
     else
       return(TRUE)
   } else
@@ -916,7 +905,7 @@ setMethod("is_decr", "Power", function(object, idx) {
     return(TRUE)
   else if(object@p > 1) {
     if(is_power2(object@p))
-      return(is_negative(object@args[[idx]]))
+      return(is_nonpos(object@args[[idx]]))
     else
       return(FALSE)
   } else
@@ -935,9 +924,23 @@ setMethod("is_quadratic", "Power", function(object) {
     return(is_constant(object@args[[1]]))
 })
 
+#' @describeIn Power A logical value indicating whether the atom is quadratic of piecewise affine.
+setMethod("is_qpwa", "Power", function(object) {
+  if(object@p == 0)
+    return(TRUE)
+  else if(object@p == 1)
+    return(is_qpwa(object@args[[1]]))
+  else if(object@p == 2)
+    return(is_pwl(object@args[[1]]))
+  else
+    return(is_constant(object@args[[1]]))
+})
+
+#' @param values A list of numeric values for the arguments
+#' @describeIn Power Gives the (sub/super)gradient of the atom w.r.t. each variable
 setMethod(".grad", "Power", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
+  rows <- size(object@args[[1]])
+  cols <- size(object)
 
   if(object@p == 0) # All zeros
     return(list(sparseMatrix(i = c(), j = c(), dims = c(rows, cols))))
@@ -954,6 +957,7 @@ setMethod(".grad", "Power", function(object, values) {
   list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
 })
 
+#' @describeIn Power Returns constraints describng the domain of the node
 setMethod(".domain", "Power", function(object) {
   if((object@p < 1 && object@p != 0) || (object@p > 1 && !is_power2(object@p)))
     list(object@args[[1]] >= 0)
@@ -961,204 +965,26 @@ setMethod(".domain", "Power", function(object) {
     list()
 })
 
-Power.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  p <- data[[1]]
-  w <- data[[2]]
+#' @describeIn Power A list containing the output of \code{pow_low, pow_mid}, or \code{pow_high} depending on the input power.
+setMethod("get_data", "Power", function(object) { list(object@p, object@w) })
 
-  if(p == 1)
-    return(list(x, list()))
-  else {
-    one <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-    if(p == 0)
-      return(one, list())
-    else {
-      t <- create_var(size)
+#' @param args A list of arguments to reconstruct the atom. If args=NULL, use the current args of the atom
+#' @param id_objects Currently unused.
+#' @describeIn Power Returns a shallow  copy of the power atom
+setMethod("copy", "Power", function(object, args = NULL, id_objects = list()) {
+  if(is.null(args))
+    args <- object@args
+  data <- get_data(object)
+  copy <- do.call(class(object), args)
+  copy@p <- data[[1]]
+  copy@w <- data[[2]]
+  copy@approx_error <- object@approx_error
+  copy
+})
 
-      # TODO: Temporary hack for powers of 1/2 and 2 until gm_constrs works
-      # if(p == 1/2)
-      #   return(list(t, gm_constrs_spec(t, list(x, one), w)))
-      # else if(p == 2)
-      #   return(list(t, gm_constrs_spec(t, list(x, one), w)))
-
-      if(p > 0 && p < 1)
-        return(list(t, gm_constrs(t, list(x, one), w)))
-      else if(p > 1)
-        return(list(t, gm_constrs(x, list(t, one), w)))
-      else if(p < 0)
-        return(list(t, gm_constrs(one, list(x, t), w)))
-      else
-        stop("This power is not yet supported")
-    }
-  }
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Power The graph implementation of the atom.
-setMethod("graph_implementation", "Power", function(object, arg_objs, size, data = NA_real_) {
-  Power.graph_implementation(arg_objs, size, data)
+#' @describeIn Power Returns the expression in string form.
+setMethod("name", "Power", function(x) {
+  paste(class(x), "(", name(x@args[[1]]), ", ", x@p, ")", sep = "")
 })
 
 Scalene <- function(x, alpha, beta) { alpha*Pos(x) + beta*Neg(x) }
-
-#'
-#' The Sqrt class.
-#'
-#' This class represents the elementwise square root \eqn{\sqrt{x}}.
-#'
-#' @slot x An \linkS4class{Expression} object.
-#' @name Sqrt-class
-#' @aliases Sqrt
-#' @rdname Sqrt-class
-.Sqrt <- setClass("Sqrt", contains = "Elementwise")
-
-#' @param x An \linkS4class{Expression} object.
-#' @rdname Sqrt-class
-Sqrt <- function(x) { .Sqrt(args = list(x)) }
-# Sqrt <- function(x) { Power(x, 1/2) }
-# TODO: Get rid of Sqrt class once Fraction handling is implemented in Power
-
-#' @describeIn Sqrt Verification of arguments happens during initialization.
-setMethod("validate_args", "Sqrt", function(object) { return() })
-
-#' @param object A \linkS4class{Sqrt} object.
-#' @param values A list of arguments to the atom.
-#' @describeIn Sqrt The elementwise square root of the input value.
-setMethod("to_numeric", "Sqrt", function(object, values) { sqrt(values[[1]]) })
-
-#' @describeIn Sqrt A list containing the output of \code{pow_mid}.
-setMethod("get_data", "Sqrt", function(object) { list(0.5, c(0.5, 0.5)) })
-
-#' @describeIn Sqrt The atom is positive.
-setMethod("sign_from_args", "Sqrt", function(object) { c(TRUE, FALSE) })
-
-#' @describeIn Sqrt The atom is not convex.
-setMethod("is_atom_convex", "Sqrt", function(object) { FALSE })
-
-#' @describeIn Sqrt The atom is concave.
-setMethod("is_atom_concave", "Sqrt", function(object) { TRUE })
-
-#' @param idx An index into the atom.
-#' @describeIn Sqrt The atom is weakly increasing.
-setMethod("is_incr", "Sqrt", function(object, idx) { TRUE })
-
-#' @describeIn Sqrt The atom is not weakly decreasing.
-setMethod("is_decr", "Sqrt", function(object, idx) { FALSE })
-
-#' @describeIn Sqrt Is \code{x} constant?
-setMethod("is_quadratic", "Sqrt", function(object) { is_constant(object@args[[1]]) })
-
-setMethod(".grad", "Sqrt", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
-  if(min(values[[1]]) <= 0)
-    return(list(NA_real_))
-  grad_vals <- 0.5*values[[1]]^(-0.5)
-  list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
-})
-
-setMethod(".domain", "Sqrt", function(object) { list(object@args[[1]] >= 0) })
-
-Sqrt.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  t <- create_var(size)
-  one <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  two <- create_const(2, c(1, 1))
-  length <- prod(size(x))
-  constraints <- list(SOCAxis(lo.reshape(lo.sum_expr(list(x, one)), c(length, 1)),
-                              lo.vstack(list(
-                              lo.reshape(lo.sub_expr(x, one), c(1, length)),
-                              lo.reshape(lo.mul_expr(two, t, size(t)), c(1, length))
-                              ), c(2, length)),
-                            2))
-  list(t, constraints)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Sqrt The graph implementation of the atom.
-setMethod("graph_implementation", "Sqrt", function(object, arg_objs, size, data = NA_real_) {
-  Sqrt.graph_implementation(arg_objs, size, data)
-})
-
-#'
-#' The Square class.
-#'
-#' This class represents the elementwise square \eqn{x^2}.
-#'
-#' @slot x An \linkS4class{Expression} object.
-#' @name Square-class
-#' @aliases Square
-#' @rdname Square-class
-.Square <- setClass("Square", contains = "Elementwise")
-
-#' @param x An \linkS4class{Expression} object.
-#' @rdname Square-class
-Square <- function(x) { .Square(args = list(x)) }
-# Square <- function(x) { Power(x, 2) }
-# TODO: Get rid of Square class once Fraction object is implemented in Power
-
-#' @describeIn Square Verification of arguments happens during initialization.
-setMethod("validate_args", "Square", function(object) { return() })
-
-#' @param object A \linkS4class{Square} object.
-#' @param values A list of arguments to the atom.
-#' @describeIn Square The elementwise square of the input value.
-setMethod("to_numeric", "Square", function(object, values) { values[[1]]^2 })
-
-#' @describeIn Square A list containing the output of \code{pow_high}.
-setMethod("get_data", "Square", function(object) { list(0.5, c(2,-1)) })
-
-#' @describeIn Square The atom is positive.
-setMethod("sign_from_args", "Square", function(object) { c(TRUE, FALSE) })
-
-#' @describeIn Square The atom is convex.
-setMethod("is_atom_convex", "Square", function(object) { TRUE })
-
-#' @describeIn Square The atom is not concave.
-setMethod("is_atom_concave", "Square", function(object) { FALSE })
-
-#' @param idx An index into the atom.
-#' @describeIn Square A logical value indicating whether the atom is weakly increasing.
-setMethod("is_incr", "Square", function(object, idx) { is_positive(object@args[[idx]]) })
-
-#' @describeIn Square A logical value indicating whether the atom is weakly decreasing.
-setMethod("is_decr", "Square", function(object, idx) { is_negative(object@args[[idx]]) })
-
-#' @describeIn Square Is \code{x} affine?
-setMethod("is_quadratic", "Square", function(object) { is_affine(object@args[[1]]) })
-
-setMethod(".grad", "Square", function(object, values) {
-  rows <- prod(size(object@args[[1]]))
-  cols <- prod(size(object))
-  grad_vals <- 2*values[[1]]
-  list(Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols))
-})
-
-setMethod(".domain", "Square", function(object) { list() })
-
-Square.graph_implementation <- function(arg_objs, size, data = NA_real_) {
-  x <- arg_objs[[1]]
-  t <- create_var(size)
-  one <- create_const(matrix(1, nrow = size[1], ncol = size[2]), size)
-  two <- create_const(2, c(1, 1))
-  length <- prod(size(x))
-  constraints <- list(SOCAxis(lo.reshape(lo.sum_expr(list(t, one)), c(length, 1)),
-                              lo.vstack(list(
-                                lo.reshape(lo.sub_expr(t, one), c(1, length)),
-                                lo.reshape(lo.mul_expr(two, x, size(x)), c(1, length))
-                                ), c(2, length)),
-                              2))
-  list(t, constraints)
-}
-
-#' @param arg_objs A list of linear expressions for each argument.
-#' @param size A vector with two elements representing the size of the resulting expression.
-#' @param data A list of additional data required by the atom.
-#' @describeIn Square The graph implementation of the atom.
-setMethod("graph_implementation", "Square", function(object, arg_objs, size, data = NA_real_) {
-  Square.graph_implementation(arg_objs, size, data)
-})

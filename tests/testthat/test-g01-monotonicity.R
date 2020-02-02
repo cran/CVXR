@@ -1,8 +1,16 @@
+context("test-g01-monotonicity")
+
+CONSTANT <- "CONSTANT"
+AFFINE <- "AFFINE"
+CONVEX <- "CONVEX"
+CONCAVE <- "CONCAVE"
+UNKNOWN <- "UNKNOWN"
+
 test_that("Test application of DCP composition rules to determine curvature", {
   expr <- 1 + exp(Variable())
   expect_equal(curvature(expr), CONVEX)
   
-  expr <- Parameter() * NonNegative()
+  expr <- Parameter() * Variable(nonneg = TRUE)
   expect_equal(curvature(expr), AFFINE)
   
   f <- function(x) { x^2 + x^0.5 }
@@ -24,7 +32,7 @@ test_that("Test application of DCP composition rules to determine curvature", {
   expr <- log(exp(Variable()))
   expect_false(is_dcp(expr))
   
-  expr <- entr(NonNegative())
+  expr <- entr(Variable(nonneg = TRUE))
   expect_equal(curvature(expr), CONCAVE)
   
   expr <- ((Variable()^2)^0.5)^0
@@ -46,17 +54,17 @@ test_that("Test DCP composition rules with signed monotonicity", {
   expr <- abs(log(Variable()))
   expect_equal(curvature(expr), UNKNOWN)
   
-  expr <- abs(square(Variable()))
+  expr <- abs(Variable()^2)
   expect_equal(curvature(expr), CONVEX)
   
   expr <- abs(entr(Variable()))
   expect_equal(curvature(expr), UNKNOWN)
   
   # Affine argument
-  expr <- abs(NonNegative())
+  expr <- abs(Variable(nonneg = TRUE))
   expect_equal(curvature(expr), CONVEX)
   
-  expr <- abs(-NonNegative())
+  expr <- abs(-Variable(nonneg = TRUE))
   expect_equal(curvature(expr), CONVEX)
   
   expr <- abs(Variable())

@@ -1,4 +1,4 @@
-#include "CVXR_types.h"
+#include "CVXR.h"
 
 // Source:  Rcpp Introduction
 

@@ -5,25 +5,33 @@
 \alias{GeoMean-class}
 \alias{.GeoMean}
 \alias{GeoMean}
-\alias{validate_args,GeoMean-method}
 \alias{to_numeric,GeoMean-method}
-\alias{size_from_args,GeoMean-method}
+\alias{.domain,GeoMean-method}
+\alias{.grad,GeoMean-method}
+\alias{name,GeoMean-method}
+\alias{dim_from_args,GeoMean-method}
 \alias{sign_from_args,GeoMean-method}
 \alias{is_atom_convex,GeoMean-method}
 \alias{is_atom_concave,GeoMean-method}
+\alias{is_atom_log_log_convex,GeoMean-method}
+\alias{is_atom_log_log_concave,GeoMean-method}
 \alias{is_incr,GeoMean-method}
 \alias{is_decr,GeoMean-method}
 \alias{get_data,GeoMean-method}
-\alias{graph_implementation,GeoMean-method}
+\alias{copy,GeoMean-method}
 \title{The GeoMean class.}
 \usage{
 GeoMean(x, p = NA_real_, max_denom = 1024)
 
-\S4method{validate_args}{GeoMean}(object)
-
 \S4method{to_numeric}{GeoMean}(object, values)
 
-\S4method{size_from_args}{GeoMean}(object)
+\S4method{.domain}{GeoMean}(object)
+
+\S4method{.grad}{GeoMean}(object, values)
+
+\S4method{name}{GeoMean}(x)
+
+\S4method{dim_from_args}{GeoMean}(object)
 
 \S4method{sign_from_args}{GeoMean}(object)
 
@@ -31,14 +39,17 @@ GeoMean(x, p = NA_real_, max_denom = 1024)
 
 \S4method{is_atom_concave}{GeoMean}(object)
 
+\S4method{is_atom_log_log_convex}{GeoMean}(object)
+
+\S4method{is_atom_log_log_concave}{GeoMean}(object)
+
 \S4method{is_incr}{GeoMean}(object, idx)
 
 \S4method{is_decr}{GeoMean}(object, idx)
 
 \S4method{get_data}{GeoMean}(object)
 
-\S4method{graph_implementation}{GeoMean}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{copy}{GeoMean}(object, args = NULL, id_objects = list())
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} or numeric vector.}
@@ -49,15 +60,13 @@ GeoMean(x, p = NA_real_, max_denom = 1024)
 
 \item{object}{A \linkS4class{GeoMean} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
 
-\item{arg_objs}{A list of linear expressions for each argument.}
+\item{args}{An optional list that contains the arguments to reconstruct the atom. Default is to use current arguments of the atom.}
 
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
+\item{id_objects}{Currently unused.}
 }
 \description{
 This class represents the (weighted) geometric mean of vector \eqn{x} with optional powers given by \eqn{p}.
@@ -71,11 +80,15 @@ A specific case of this is when \eqn{x \in \mathbf{R}^1}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Empty function since validation of arguments is done during atom initialization.
-
 \item \code{to_numeric}: The (weighted) geometric mean of the elements of \code{x}.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{.domain}: Returns constraints describing the domain of the node
+
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
+
+\item \code{name}: The name and arguments of the atom.
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The atom is non-negative.
 
@@ -83,13 +96,17 @@ A specific case of this is when \eqn{x \in \mathbf{R}^1}.
 
 \item \code{is_atom_concave}: The atom is concave.
 
+\item \code{is_atom_log_log_convex}: Is the atom log-log convex?
+
+\item \code{is_atom_log_log_concave}: Is the atom log-log concave?
+
 \item \code{is_incr}: The atom is weakly increasing in every argument.
 
 \item \code{is_decr}: The atom is not weakly decreasing in any argument.
 
 \item \code{get_data}: Returns \code{list(w, dyadic completion, tree of dyads)}.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{copy}: Returns a shallow copy of the GeoMean atom
 }}
 
 \section{Slots}{

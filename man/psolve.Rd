@@ -5,16 +5,40 @@
 \alias{psolve}
 \alias{solve}
 \alias{psolve,Problem-method}
-\alias{solve.Problem}
+\alias{solve,Problem,ANY-method}
 \title{Solve a DCP Problem}
 \usage{
-psolve(object, solver, ignore_dcp = FALSE, warm_start = FALSE,
-  verbose = FALSE, parallel = FALSE, ...)
+psolve(
+  object,
+  solver = NA,
+  ignore_dcp = FALSE,
+  warm_start = FALSE,
+  verbose = FALSE,
+  parallel = FALSE,
+  gp = FALSE,
+  feastol = NULL,
+  reltol = NULL,
+  abstol = NULL,
+  num_iter = NULL,
+  ...
+)
 
-\S4method{psolve}{Problem}(object, solver, ignore_dcp = FALSE,
-  warm_start = FALSE, verbose = FALSE, parallel = FALSE, ...)
+\S4method{psolve}{Problem}(
+  object,
+  solver = NA,
+  ignore_dcp = FALSE,
+  warm_start = FALSE,
+  verbose = FALSE,
+  parallel = FALSE,
+  gp = FALSE,
+  feastol = NULL,
+  reltol = NULL,
+  abstol = NULL,
+  num_iter = NULL,
+  ...
+)
 
-\method{solve}{Problem}(a, b, ...)
+\S4method{solve}{Problem,ANY}(a, b = NA, ...)
 }
 \arguments{
 \item{object, a}{A \linkS4class{Problem} object.}
@@ -28,6 +52,16 @@ psolve(object, solver, ignore_dcp = FALSE, warm_start = FALSE,
 \item{verbose}{(Optional) A logical value indicating whether to print additional solver output.}
 
 \item{parallel}{(Optional) A logical value indicating whether to solve in parallel if the problem is separable.}
+
+\item{gp}{(Optional) A logical value indicating whether the problem is a geometric program. Defaults to \code{FALSE}.}
+
+\item{feastol}{The feasible tolerance on the primal and dual residual.}
+
+\item{reltol}{The relative tolerance on the duality gap.}
+
+\item{abstol}{The absolute tolerance on the duality gap.}
+
+\item{num_iter}{The maximum number of iterations.}
 
 \item{...}{Additional options that will be passed to the specific solver. In general, these options will override any default settings imposed by CVXR.}
 }

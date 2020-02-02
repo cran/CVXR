@@ -5,32 +5,41 @@
 \alias{Pnorm-class}
 \alias{.Pnorm}
 \alias{Pnorm}
-\alias{validate_args,Pnorm-method}
-\alias{name,Pnorm-method}
+\alias{allow_complex,Pnorm-method}
 \alias{to_numeric,Pnorm-method}
+\alias{validate_args,Pnorm-method}
 \alias{sign_from_args,Pnorm-method}
 \alias{is_atom_convex,Pnorm-method}
 \alias{is_atom_concave,Pnorm-method}
+\alias{is_atom_log_log_convex,Pnorm-method}
+\alias{is_atom_log_log_concave,Pnorm-method}
 \alias{is_incr,Pnorm-method}
 \alias{is_decr,Pnorm-method}
 \alias{is_pwl,Pnorm-method}
 \alias{get_data,Pnorm-method}
-\alias{graph_implementation,Pnorm-method}
+\alias{name,Pnorm-method}
+\alias{.domain,Pnorm-method}
+\alias{.grad,Pnorm-method}
+\alias{.column_grad,Pnorm-method}
 \title{The Pnorm class.}
 \usage{
-Pnorm(x, p = 2, axis = NA_real_, max_denom = 1024)
+Pnorm(x, p = 2, axis = NA_real_, keepdims = FALSE, max_denom = 1024)
 
-\S4method{validate_args}{Pnorm}(object)
-
-\S4method{name}{Pnorm}(object)
+\S4method{allow_complex}{Pnorm}(object)
 
 \S4method{to_numeric}{Pnorm}(object, values)
+
+\S4method{validate_args}{Pnorm}(object)
 
 \S4method{sign_from_args}{Pnorm}(object)
 
 \S4method{is_atom_convex}{Pnorm}(object)
 
 \S4method{is_atom_concave}{Pnorm}(object)
+
+\S4method{is_atom_log_log_convex}{Pnorm}(object)
+
+\S4method{is_atom_log_log_concave}{Pnorm}(object)
 
 \S4method{is_incr}{Pnorm}(object, idx)
 
@@ -40,8 +49,13 @@ Pnorm(x, p = 2, axis = NA_real_, max_denom = 1024)
 
 \S4method{get_data}{Pnorm}(object)
 
-\S4method{graph_implementation}{Pnorm}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{name}{Pnorm}(x)
+
+\S4method{.domain}{Pnorm}(object)
+
+\S4method{.grad}{Pnorm}(object, values)
+
+\S4method{.column_grad}{Pnorm}(object, value)
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} representing a vector or matrix.}
@@ -50,19 +64,17 @@ Pnorm(x, p = 2, axis = NA_real_, max_denom = 1024)
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
 
-\item{max_denom}{The maximum denominator considered in forming a rational approximation for \eqn{p}.}
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
+
+\item{max_denom}{(Optional) The maximum denominator considered in forming a rational approximation for \eqn{p}. The default is 1024.}
 
 \item{object}{A \linkS4class{Pnorm} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
 
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
+\item{value}{A numeric value}
 }
 \description{
 This class represents the vector p-norm.
@@ -81,11 +93,11 @@ For \eqn{p < 1, p\neq 0}, the p-norm is given by \deqn{\|x\|_p = \left(\sum_{i=1
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Check that the arguments are valid.
-
-\item \code{name}: The name and arguments of the atom.
+\item \code{allow_complex}: Does the atom handle complex numbers?
 
 \item \code{to_numeric}: The p-norm of \code{x}.
+
+\item \code{validate_args}: Check that the arguments are valid.
 
 \item \code{sign_from_args}: The atom is positive.
 
@@ -93,15 +105,25 @@ For \eqn{p < 1, p\neq 0}, the p-norm is given by \deqn{\|x\|_p = \left(\sum_{i=1
 
 \item \code{is_atom_concave}: The atom is concave if \eqn{p < 1}.
 
-\item \code{is_incr}: The atom is weakly increasing if \eqn{p < 1} or \eqn{p \geq 1} and \code{x} is positive.
+\item \code{is_atom_log_log_convex}: Is the atom log-log convex?
 
-\item \code{is_decr}: The atom is weakly decreasing if \eqn{p \geq 1} and \code{x} is negative.
+\item \code{is_atom_log_log_concave}: Is the atom log-log concave?
 
-\item \code{is_pwl}: The atom is piecewise linear only if \code{x} is piecewise linear, and either \eqn{p = 1} or \eqn{p = \infty}.
+\item \code{is_incr}: The atom is weakly increasing if \eqn{p < 1} or \eqn{p > 1} and \code{x} is positive.
+
+\item \code{is_decr}: The atom is weakly decreasing if \eqn{p > 1} and \code{x} is negative.
+
+\item \code{is_pwl}: The atom is not piecewise linear unless \eqn{p = 1} or \eqn{p = \infty}.
 
 \item \code{get_data}: Returns \code{list(p, axis)}.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{name}: The name and arguments of the atom.
+
+\item \code{.domain}: Returns constraints describing the domain of the node
+
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
+
+\item \code{.column_grad}: Gives the (sub/super)gradient of the atom w.r.t. each column variable
 }}
 
 \section{Slots}{
@@ -115,6 +137,10 @@ For \eqn{p < 1, p\neq 0}, the p-norm is given by \deqn{\|x\|_p = \left(\sum_{i=1
 
 \item{\code{axis}}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
 
+\item{\code{keepdims}}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
+
 \item{\code{.approx_error}}{(Internal) The absolute difference between \eqn{p} and its rational approximation.}
+
+\item{\code{.original_p}}{(Internal) The original input \eqn{p}.}
 }}
 

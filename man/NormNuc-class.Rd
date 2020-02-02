@@ -6,20 +6,23 @@
 \alias{.NormNuc}
 \alias{NormNuc}
 \alias{to_numeric,NormNuc-method}
-\alias{size_from_args,NormNuc-method}
+\alias{allow_complex,NormNuc-method}
+\alias{dim_from_args,NormNuc-method}
 \alias{sign_from_args,NormNuc-method}
 \alias{is_atom_convex,NormNuc-method}
 \alias{is_atom_concave,NormNuc-method}
 \alias{is_incr,NormNuc-method}
 \alias{is_decr,NormNuc-method}
-\alias{graph_implementation,NormNuc-method}
+\alias{.grad,NormNuc-method}
 \title{The NormNuc class.}
 \usage{
 NormNuc(A)
 
 \S4method{to_numeric}{NormNuc}(object, values)
 
-\S4method{size_from_args}{NormNuc}(object)
+\S4method{allow_complex}{NormNuc}(object)
+
+\S4method{dim_from_args}{NormNuc}(object)
 
 \S4method{sign_from_args}{NormNuc}(object)
 
@@ -31,23 +34,16 @@ NormNuc(A)
 
 \S4method{is_decr}{NormNuc}(object, idx)
 
-\S4method{graph_implementation}{NormNuc}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{.grad}{NormNuc}(object, values)
 }
 \arguments{
-\item{A}{An \linkS4class{Expression} representing a matrix.}
+\item{A}{An \linkS4class{Expression} or numeric matrix.}
 
 \item{object}{A \linkS4class{NormNuc} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 The nuclear norm, i.e. sum of the singular values of a matrix.
@@ -56,7 +52,9 @@ The nuclear norm, i.e. sum of the singular values of a matrix.
 \itemize{
 \item \code{to_numeric}: The nuclear norm (i.e., the sum of the singular values) of \code{A}.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{allow_complex}: Does the atom handle complex numbers?
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The atom is positive.
 
@@ -68,12 +66,12 @@ The nuclear norm, i.e. sum of the singular values of a matrix.
 
 \item \code{is_decr}: The atom is not monotonic in any argument.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{
 
 \describe{
-\item{\code{A}}{An \linkS4class{Expression} representing a matrix.}
+\item{\code{A}}{An \linkS4class{Expression} or numeric matrix.}
 }}
 

@@ -7,7 +7,7 @@
 \alias{sum.Expression}
 \title{Sum of Entries}
 \usage{
-sum_entries(expr, axis = NA_real_)
+sum_entries(expr, axis = NA_real_, keepdims = FALSE)
 
 \method{sum}{Expression}(..., na.rm = FALSE)
 }
@@ -15,6 +15,8 @@ sum_entries(expr, axis = NA_real_)
 \item{expr}{An \linkS4class{Expression}, vector, or matrix.}
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 
 \item{...}{Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.}
 
@@ -27,6 +29,17 @@ An \linkS4class{Expression} representing the sum of the entries of the input.
 The sum of entries in a vector or matrix.
 }
 \examples{
+x <- Variable(2)
+prob <- Problem(Minimize(sum_entries(x)), list(t(x) >= matrix(c(1,2), nrow = 1, ncol = 2)))
+result <- solve(prob)
+result$value
+result$getValue(x)
+
+C <- Variable(3,2)
+prob <- Problem(Maximize(sum_entries(C)), list(C[2:3,] <= 2, C[1,] == 1))
+result <- solve(prob)
+result$value
+result$getValue(C)
 x <- Variable(2)
 prob <- Problem(Minimize(sum_entries(x)), list(t(x) >= matrix(c(1,2), nrow = 1, ncol = 2)))
 result <- solve(prob)

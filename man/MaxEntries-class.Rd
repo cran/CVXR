@@ -9,13 +9,16 @@
 \alias{sign_from_args,MaxEntries-method}
 \alias{is_atom_convex,MaxEntries-method}
 \alias{is_atom_concave,MaxEntries-method}
+\alias{is_atom_log_log_convex,MaxEntries-method}
+\alias{is_atom_log_log_concave,MaxEntries-method}
 \alias{is_incr,MaxEntries-method}
 \alias{is_decr,MaxEntries-method}
 \alias{is_pwl,MaxEntries-method}
-\alias{graph_implementation,MaxEntries-method}
+\alias{.grad,MaxEntries-method}
+\alias{.column_grad,MaxEntries-method}
 \title{The MaxEntries class.}
 \usage{
-MaxEntries(x, axis = NA_real_)
+MaxEntries(x, axis = NA_real_, keepdims = FALSE)
 
 \S4method{to_numeric}{MaxEntries}(object, values)
 
@@ -25,31 +28,34 @@ MaxEntries(x, axis = NA_real_)
 
 \S4method{is_atom_concave}{MaxEntries}(object)
 
+\S4method{is_atom_log_log_convex}{MaxEntries}(object)
+
+\S4method{is_atom_log_log_concave}{MaxEntries}(object)
+
 \S4method{is_incr}{MaxEntries}(object, idx)
 
 \S4method{is_decr}{MaxEntries}(object, idx)
 
 \S4method{is_pwl}{MaxEntries}(object)
 
-\S4method{graph_implementation}{MaxEntries}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{.grad}{MaxEntries}(object, values)
+
+\S4method{.column_grad}{MaxEntries}(object, value)
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} representing a vector or matrix.}
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
 
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
+
 \item{object}{A \linkS4class{MaxEntries} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
 
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
+\item{value}{A numeric value}
 }
 \description{
 The maximum of an expression.
@@ -64,13 +70,19 @@ The maximum of an expression.
 
 \item \code{is_atom_concave}: The atom is not concave.
 
+\item \code{is_atom_log_log_convex}: Is the atom log-log convex.
+
+\item \code{is_atom_log_log_concave}: Is the atom log-log concave.
+
 \item \code{is_incr}: The atom is weakly increasing in every argument.
 
 \item \code{is_decr}: The atom is not weakly decreasing in any argument.
 
 \item \code{is_pwl}: Is \code{x} piecewise linear?
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
+
+\item \code{.column_grad}: Gives the (sub/super)gradient of the atom w.r.t. each column variable
 }}
 
 \section{Slots}{
@@ -79,5 +91,7 @@ The maximum of an expression.
 \item{\code{x}}{An \linkS4class{Expression} representing a vector or matrix.}
 
 \item{\code{axis}}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{\code{keepdims}}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 }}
 

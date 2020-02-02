@@ -5,25 +5,25 @@
 \alias{SumLargest-class}
 \alias{.SumLargest}
 \alias{SumLargest}
-\alias{validate_args,SumLargest-method}
 \alias{to_numeric,SumLargest-method}
-\alias{size_from_args,SumLargest-method}
+\alias{validate_args,SumLargest-method}
+\alias{dim_from_args,SumLargest-method}
 \alias{sign_from_args,SumLargest-method}
 \alias{is_atom_convex,SumLargest-method}
 \alias{is_atom_concave,SumLargest-method}
 \alias{is_incr,SumLargest-method}
 \alias{is_decr,SumLargest-method}
 \alias{get_data,SumLargest-method}
-\alias{graph_implementation,SumLargest-method}
+\alias{.grad,SumLargest-method}
 \title{The SumLargest class.}
 \usage{
 SumLargest(x, k)
 
-\S4method{validate_args}{SumLargest}(object)
-
 \S4method{to_numeric}{SumLargest}(object, values)
 
-\S4method{size_from_args}{SumLargest}(object)
+\S4method{validate_args}{SumLargest}(object)
+
+\S4method{dim_from_args}{SumLargest}(object)
 
 \S4method{sign_from_args}{SumLargest}(object)
 
@@ -37,8 +37,7 @@ SumLargest(x, k)
 
 \S4method{get_data}{SumLargest}(object)
 
-\S4method{graph_implementation}{SumLargest}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{.grad}{SumLargest}(object, values)
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} or numeric matrix.}
@@ -47,26 +46,20 @@ SumLargest(x, k)
 
 \item{object}{A \linkS4class{SumLargest} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 The sum of the largest k values of a matrix.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Check that \code{k} is a positive integer.
-
 \item \code{to_numeric}: The sum of the \code{k} largest entries of the vector or matrix.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{validate_args}: Check that \code{k} is a positive integer.
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The sign of the atom.
 
@@ -80,7 +73,7 @@ The sum of the largest k values of a matrix.
 
 \item \code{get_data}: A list containing \code{k}.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{

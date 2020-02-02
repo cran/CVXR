@@ -5,25 +5,30 @@
 \alias{MatrixFrac-class}
 \alias{.MatrixFrac}
 \alias{MatrixFrac}
-\alias{validate_args,MatrixFrac-method}
+\alias{allow_complex,MatrixFrac-method}
 \alias{to_numeric,MatrixFrac-method}
-\alias{size_from_args,MatrixFrac-method}
+\alias{validate_args,MatrixFrac-method}
+\alias{dim_from_args,MatrixFrac-method}
 \alias{sign_from_args,MatrixFrac-method}
 \alias{is_atom_convex,MatrixFrac-method}
 \alias{is_atom_concave,MatrixFrac-method}
 \alias{is_incr,MatrixFrac-method}
 \alias{is_decr,MatrixFrac-method}
 \alias{is_quadratic,MatrixFrac-method}
-\alias{graph_implementation,MatrixFrac-method}
+\alias{is_qpwa,MatrixFrac-method}
+\alias{.domain,MatrixFrac-method}
+\alias{.grad,MatrixFrac-method}
 \title{The MatrixFrac class.}
 \usage{
 MatrixFrac(X, P)
 
-\S4method{validate_args}{MatrixFrac}(object)
+\S4method{allow_complex}{MatrixFrac}(object)
 
 \S4method{to_numeric}{MatrixFrac}(object, values)
 
-\S4method{size_from_args}{MatrixFrac}(object)
+\S4method{validate_args}{MatrixFrac}(object)
+
+\S4method{dim_from_args}{MatrixFrac}(object)
 
 \S4method{sign_from_args}{MatrixFrac}(object)
 
@@ -37,8 +42,11 @@ MatrixFrac(X, P)
 
 \S4method{is_quadratic}{MatrixFrac}(object)
 
-\S4method{graph_implementation}{MatrixFrac}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{is_qpwa}{MatrixFrac}(object)
+
+\S4method{.domain}{MatrixFrac}(object)
+
+\S4method{.grad}{MatrixFrac}(object, values)
 }
 \arguments{
 \item{X}{An \linkS4class{Expression} or numeric matrix.}
@@ -47,26 +55,22 @@ MatrixFrac(X, P)
 
 \item{object}{A \linkS4class{MatrixFrac} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 The matrix fraction function \eqn{tr(X^T P^{-1} X)}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Check that the dimensions of \code{x} and \code{P} match.
+\item \code{allow_complex}: Does the atom handle complex numbers?
 
 \item \code{to_numeric}: The trace of \eqn{X^TP^{-1}X}.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{validate_args}: Check that the dimensions of \code{x} and \code{P} match.
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The atom is positive.
 
@@ -80,7 +84,11 @@ The matrix fraction function \eqn{tr(X^T P^{-1} X)}.
 
 \item \code{is_quadratic}: True if x is affine and P is constant.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{is_qpwa}: True if x is piecewise linear and P is constant.
+
+\item \code{.domain}: Returns constraints describing the domain of the node
+
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{

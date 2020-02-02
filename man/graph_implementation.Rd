@@ -5,14 +5,14 @@
 \alias{graph_implementation}
 \title{Graph Implementation}
 \usage{
-graph_implementation(object, arg_objs, size, data)
+graph_implementation(object, arg_objs, dim, data)
 }
 \arguments{
 \item{object}{An \linkS4class{Expression} object.}
 
 \item{arg_objs}{A list of linear expressions for each argument.}
 
-\item{size}{A vector with two elements representing the size of the resulting expression.}
+\item{dim}{A vector representing the dimensions of the resulting expression.}
 
 \item{data}{A list of additional data required by the atom.}
 }

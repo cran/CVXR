@@ -1,7 +1,6 @@
 ## Added format_matrix and set_matrix_data.
-get_problem_matrix <- function(constrs, id_to_col = integer(0), constr_offsets = integer(0)) {
+get_problem_matrix <- function(linOps, id_to_col = integer(0), constr_offsets = integer(0)) {
     cvxCanon <- CVXcanon$new()
-    linOps <- lapply(constrs, function(constr) { constr$expr })
     lin_vec <- CVXcanon.LinOpVector$new()
 
     ## KLUDGE: Anqi, fix id_to_col to have proper names!
@@ -61,6 +60,14 @@ get_problem_matrix <- function(constrs, id_to_col = integer(0), constr_offsets =
 format_matrix <- function(matrix, format='dense') {
     ## Returns the matrix in the appropriate form,
     ## so that it can be efficiently loaded with our swig wrapper
+
+    ## TODO: Should we convert bigq/bigz values? What if it's a sparse matrix?
+    if(is.bigq(matrix) || is.bigz(matrix)) {
+        matdbl <- matrix(sapply(matrix, as.double))
+        dim(matdbl) <- dim(matrix)
+        matrix <- matdbl
+    }
+
     if (format == 'dense') {
         ## Ensure is 2D.
         as.matrix(matrix)
@@ -106,7 +113,7 @@ set_slice_data <- function(linC, linR) {  ## What does this do?
         ## if (!is.na(sl$start_idx))
         ##     start_idx <- sl$start_idx - 1L  ## Using zero-based indexing
 
-        ## stop_idx <- linR$args[[1]]$size[i] - 1L
+        ## stop_idx <- linR$args[[1]]$dim[i] - 1L
         ## if (!is.na(sl$stop_idx))
         ##     stop_idx <- sl$stop_idx - 1L
 
@@ -124,17 +131,17 @@ set_slice_data <- function(linC, linR) {  ## What does this do?
         ##for(var in c(start_idx, stop_idx, step))
         ##    vec$push_back(var)
         ## vec <- c(start_idx, stop_idx, step)
-        if (length(sl) == 1L) {
-            vec <- c(sl - 1L, sl, 1L)
-        } else if (length(sl) == 2L) {
-            vec <- c(sl[1L] - 1L, sl[2L], 1L)  # Using zero-based indexing, and step assumed to be 1.
-        } else {
-            r <- range(sl)
-            vec <- c(r[1L] - 1L, r[2L], 1L)
-        }
+        ## if (length(sl) == 1L) {
+        ##     vec <- c(sl - 1L, sl, 1L)
+        ## } else if (length(sl) == 2L) {
+        ##     vec <- c(sl[1L] - 1L, sl[2L], 1L)  # Using zero-based indexing, and step assumed to be 1.
+        ## } else {
+        ##     r <- range(sl)
+        ##     vec <- c(r[1L] - 1L, r[2L], 1L)
+        ## }
 
         ##vec <- c(sl, 1L)  # Using 1-based indexing, and step assumed to be 1.
-        linC$slice_push_back(vec)
+        linC$slice_push_back(sl - 1) ## Make indices zero-based for C++
     }
 }
 
@@ -162,8 +169,8 @@ build_lin_op_tree <- function(root_linR, tmp, verbose = FALSE) {
         linC$type <- toupper(linR$type) ## Check with Anqi
 
         ## Setting size
-        linC$size_push_back(as.integer(linR$size[1]))
-        linC$size_push_back(as.integer(linR$size[2]))
+        linC$size_push_back(as.integer(linR$dim[1]))
+        linC$size_push_back(as.integer(linR$dim[2]))
 
         ## Loading the problem data into the approriate array format
         if(!is.null(linR$data)) {

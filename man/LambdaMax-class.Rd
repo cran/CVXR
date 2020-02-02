@@ -5,24 +5,29 @@
 \alias{LambdaMax-class}
 \alias{.LambdaMax}
 \alias{LambdaMax}
-\alias{validate_args,LambdaMax-method}
 \alias{to_numeric,LambdaMax-method}
-\alias{size_from_args,LambdaMax-method}
+\alias{.domain,LambdaMax-method}
+\alias{.grad,LambdaMax-method}
+\alias{validate_args,LambdaMax-method}
+\alias{dim_from_args,LambdaMax-method}
 \alias{sign_from_args,LambdaMax-method}
 \alias{is_atom_convex,LambdaMax-method}
 \alias{is_atom_concave,LambdaMax-method}
 \alias{is_incr,LambdaMax-method}
 \alias{is_decr,LambdaMax-method}
-\alias{graph_implementation,LambdaMax-method}
 \title{The LambdaMax class.}
 \usage{
 LambdaMax(A)
 
-\S4method{validate_args}{LambdaMax}(object)
-
 \S4method{to_numeric}{LambdaMax}(object, values)
 
-\S4method{size_from_args}{LambdaMax}(object)
+\S4method{.domain}{LambdaMax}(object)
+
+\S4method{.grad}{LambdaMax}(object, values)
+
+\S4method{validate_args}{LambdaMax}(object)
+
+\S4method{dim_from_args}{LambdaMax}(object)
 
 \S4method{sign_from_args}{LambdaMax}(object)
 
@@ -33,9 +38,6 @@ LambdaMax(A)
 \S4method{is_incr}{LambdaMax}(object, idx)
 
 \S4method{is_decr}{LambdaMax}(object, idx)
-
-\S4method{graph_implementation}{LambdaMax}(object, arg_objs, size,
-  data = NA_real_)
 }
 \arguments{
 \item{A}{An \linkS4class{Expression} or numeric matrix.}
@@ -45,23 +47,21 @@ LambdaMax(A)
 \item{values}{A list of arguments to the atom.}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 The maximum eigenvalue of a matrix, \eqn{\lambda_{\max}(A)}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Check that \code{A} is square.
-
 \item \code{to_numeric}: The largest eigenvalue of \code{A}. Requires that \code{A} be symmetric.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{.domain}: Returns the constraints describing the domain of the atom.
+
+\item \code{.grad}: Gives the (sub/super)gradient of the atom with respect to each argument. Matrix expressions are vectorized, so the gradient is a matrix.
+
+\item \code{validate_args}: Check that \code{A} is square.
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The sign of the atom is unknown.
 
@@ -72,8 +72,6 @@ The maximum eigenvalue of a matrix, \eqn{\lambda_{\max}(A)}.
 \item \code{is_incr}: The atom is not monotonic in any argument.
 
 \item \code{is_decr}: The atom is not monotonic in any argument.
-
-\item \code{graph_implementation}: The graph implementation of the atom.
 }}
 
 \section{Slots}{

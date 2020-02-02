@@ -16,8 +16,8 @@
 #
 # setMethod("is_convex", "Indicator", function(object) { TRUE })
 # setMethod("is_concave", "Indicator", function(object) { FALSE })
-# setMethod("is_positive", "Indicator", function(object) { TRUE })
-# setMethod("is_negative", "Indicator", function(object) { FALSE })
+# setMethod("is_nonneg", "Indicator", function(object) { TRUE })
+# setMethod("is_nonpos", "Indicator", function(object) { FALSE })
 # setMethod("get_data", "Indicator", function(object) { list(object@err_tol) })
 # setMethod("size", "Indicator", function(object) { c(1,1) })
 # setMethod("name", "Indicator", function(object) { cat("Indicator(", object@args, ")") })
@@ -37,16 +37,23 @@
 #   list(create_const(0, c(1,1)), constraints)
 # })
 
-## #'
-## #' Tangent Approximation to an Expression
-## #'
-## #' Gives an elementwise lower (upper) bound for convex (concave) expressions. No guarantees for non-DCP expressions.
-## #'
-## #' @param expr An \linkS4class{Expression} to linearize.
-## #' @return An affine expression or \code{NA} if cannot be linearized.
-## #' @docType methods
-## #' @rdname linearize
-## #' @export
+#'
+#' Affine Approximation to an Expression
+#'
+#' Gives an elementwise lower (upper) bound for convex (concave) expressions that is tight
+#' at the current variable/parameter values. No guarantees for non-DCP expressions.
+#' 
+#' If f and g are convex, the objective f-g can be (heuristically) minimized using the
+#' implementation below of the convex-concave method:
+#' 
+#' \code{for(iters in 1:N)
+#'    solve(Problem(Minimize(f - linearize(g))))}
+#'
+#' @param expr An \linkS4class{Expression} to linearize.
+#' @return An affine expression or \code{NA} if cannot be linearized.
+#' @docType methods
+#' @rdname linearize
+#' @export
 linearize <- function(expr) {
   expr <- as.Constant(expr)
   if(is_affine(expr))
@@ -62,8 +69,7 @@ linearize <- function(expr) {
         return(NA_real_)
       else if(is_matrix(var)) {
         flattened <- t(Constant(grad_var)) %*% Vec(var - value(var))
-        size <- size(expr)
-        tangent <- tangent + Reshape(flattened, size[1], size[2])
+        tangent <- tangent + Reshape(flattened, dim(expr))
       } else
         tangent <- tangent + t(Constant(grad_var)) %*% (var - value(var))
     }
@@ -121,10 +127,20 @@ linearize <- function(expr) {
 # setMethod("is_concave", "PartialProblem", function(object) {
 #   is_dcp(object@args[[1]]) && class(object@args[[1]]@objective) == "Maximize"
 # })
-# setMethod("is_positive", "PartialProblem", function(object) { is_positive(object@args[[1]]@objective@args[[1]]) })
-# setMethod("is_negative", "PartialProblem", function(object) { is_negative(object@args[[1]]@objective@args[[1]]) })
-# setMethod("size", "PartialProblem", function(object) { c(1,1) })
-# setMethod("variables", "PartialProblem", function(object) { object@dont_opt_vars })
+# setMethod("is_log_log_convex", "PartialProblem", function(object) {
+#   is_dgp(object@args[[1]]) && class(object@args[[1]]@objective) == "Minimize"
+# })
+# setMethod("is_log_log_concave", "PartialProblem", function(object) {
+#   is_dgp(object@args[[1]]) && class(object@args[[1]]@objective) == "Maximize"
+# })
+# setMethod("is_nonneg", "PartialProblem", function(object) { is_nonneg(object@args[[1]]@objective@args[[1]]) })
+# setMethod("is_nonpos", "PartialProblem", function(object) { is_nonpos(object@args[[1]]@objective@args[[1]]) })
+# setMethod("is_imag", "PartialProblem", function(object) { FALSE })
+# setMethod("is_complex", "PartialProblem", function(object) { FALSE })
+# setMethod("dim", "PartialProblem", function(x) { c() })
+# setMethod("variables", "PartialProblem", function(object) { variables(object@args[[1]]) })
+# setMethod("parameters", "PartialProblem", function(object) { parameters(object@args[[1]]) })
+# setMethod("constants", "PartialProblem", function(object) { constants(object@args[[1]]) })
 # setMethod("grad", "PartialProblem", function(object) {
 #   # Short circuit for constant
 #   if(is_constant(object))
@@ -150,7 +166,7 @@ linearize <- function(expr) {
 #     for(constr in object@.prob@constraints) {
 #       # TODO: better way to get constraint expressions.
 #       lagr_multiplier <- as.Constant(sign*sol$constr@dual_value)   # TODO: Fix this once result retrieval finished
-#       lagr <- lagr + Trace(t(lagr_multiplier) * constr@.expr)
+#       lagr <- lagr + Trace(t(lagr_multiplier) * expr(constr))
 #     }
 #     grad_map <- grad(lagr)
 #     result <- lapply(variables(object), function(var) { grad_map[[id(var)]] })
@@ -232,7 +248,7 @@ linearize <- function(expr) {
 #
 #   for(i in 1:num_objs) {
 #     obj <- objectives[[i]]
-#     sign <- ifelse(is_positive(Constant(priorities[[i]])), 1, -1)
+#     sign <- ifelse(is_nonneg(Constant(priorities[[i]])), 1, -1)
 #     off_target <- sign * off_target
 #     if(class(obj) == "Minimize") {
 #       expr <- (priorities[[i]] - off_target)*Pos(obj@args[[1]] - targets[[i]])
@@ -258,7 +274,7 @@ linearize <- function(expr) {
 #
 # Scalarize.max <- function(objectives, weights) {
 #   num_objs <- length(objectives)
-#   expr <- MaxElemwise(lapply(1:num_objs, function(i) { objectives[[i]]*weights[[i]] }))
+#   expr <- .MaxElemwise(atom_args = lapply(1:num_objs, function(i) { objectives[[i]]*weights[[i]] }))
 #   Minimize(expr)
 # }
 #

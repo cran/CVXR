@@ -12,10 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// [[Rcpp::depends(RcppEigen)]]
-
 #include "LinOp.h"
 #include "LinOpOperations.h"
+#include "Utils.h"
 #include <cassert>
 #include <map>
 #include <iostream>
@@ -62,10 +61,10 @@ std::vector<Matrix> get_func_coeffs(LinOp& lin) {
 	case PROMOTE:
 		coeffs = get_promote_mat(lin);
 		break;
-	case MUL:
+	case MUL_EXPR:
 		coeffs = get_mul_mat(lin);
 		break;
-	case RMUL:
+	case RMUL_EXPR:
 		coeffs = get_rmul_mat(lin);
 		break;
 	case MUL_ELEM:
@@ -75,18 +74,30 @@ std::vector<Matrix> get_func_coeffs(LinOp& lin) {
 		coeffs = get_div_mat(lin);
 		break;
 	case SUM:
+#ifdef _R_DEBUG_
+	  Rcpp::Rcout << "SUM" << std::endl;    
+#endif  
 		coeffs = get_sum_coefficients(lin);
 		break;
 	case NEG:
+#ifdef _R_DEBUG_
+	  Rcpp::Rcout << "NEG" << std::endl;    
+#endif  
 		coeffs = get_neg_mat(lin);
 		break;
 	case INDEX:
+#ifdef _R_DEBUG_
+	  Rcpp::Rcout << "INDEX" << std::endl;    
+#endif  
 		coeffs = get_index_mat(lin);
 		break;
 	case TRANSPOSE:
 		coeffs = get_transpose_mat(lin);
 		break;
 	case SUM_ENTRIES:
+#ifdef _R_DEBUG_
+	  Rcpp::Rcout << "SUM_ENTRIES" << std::endl;    
+#endif  
 		coeffs = get_sum_entries_mat(lin);
 		break;
 	case TRACE:
@@ -596,6 +607,26 @@ std::vector<Matrix> get_index_mat(LinOp &lin) {
 		return build_vector(coeffs);
 	}
 
+#ifdef _R_INTERFACE_	
+	
+	/* Set the index coefficients by looping over the column selection
+	 * first to remain consistent with CVXPY. */
+	std::vector<Triplet> tripletList;
+	std::vector<int> col_slice = lin.slice[1];
+	std::vector<int> row_slice = lin.slice[0];
+	int counter = 0;
+	for (int j = 0; j < col_slice.size(); j++) {
+	  for (int i = 0; i < row_slice.size(); i++) {
+#ifdef _R_DEBUG_
+	    Rcpp::Rcout << "i, j: "  << col_slice[j] << ", " << row_slice[i] << std::endl;	      
+#endif
+	    int row_idx = counter;
+	    int col_idx = col_slice[j] * rows + row_slice[i];
+	    tripletList.push_back(Triplet(row_idx, col_idx, 1.0));
+	    counter++;
+	  }
+	}
+#else
 	std::vector<std::vector<int> > slices = get_slice_data(lin, rows, cols);
 
 	/* Row Slice Data */
@@ -636,8 +667,12 @@ std::vector<Matrix> get_index_mat(LinOp &lin) {
 			break;
 		}
 	}
+#endif
 	coeffs.setFromTriplets(tripletList.begin(), tripletList.end());
 	coeffs.makeCompressed();
+#ifdef _R_DEBUG_
+	Rcpp::Rcout << Eigen::MatrixXd(coeffs) << std::endl;
+#endif	
 	return build_vector(coeffs);
 }
 
@@ -671,17 +706,17 @@ std::vector<Matrix> get_mul_elemwise_mat(LinOp &lin) {
 }
 
 /**
- * Return the coefficients for RMUL (right multiplication): a ROWS * N
+ * Return the coefficients for RMUL_EXPR (right multiplication): a ROWS * N
  * by COLS * N matrix given by the kronecker product between the
  * transpose of the constant matrix CONSTANT and a N x N identity matrix.
  *
- * Parameters: linOp of type RMUL
+ * Parameters: linOp of type RMUL_EXPR
  *
  * Returns: vector containing the corresponding coefficient matrix COEFFS
  *
  */
 std::vector<Matrix> get_rmul_mat(LinOp &lin) {
-	assert(lin.type == RMUL);
+	assert(lin.type == RMUL_EXPR);
 	Matrix constant = get_constant_data(lin, false);
 	int rows = constant.rows();
 	int cols = constant.cols();
@@ -710,17 +745,17 @@ std::vector<Matrix> get_rmul_mat(LinOp &lin) {
 }
 
 /**
- * Return the coefficients for MUL (left multiplication): a NUM_BLOCKS * ROWS
+ * Return the coefficients for MUL_EXPR (left multiplication): a NUM_BLOCKS * ROWS
  * by NUM_BLOCKS * COLS block diagonal matrix where each diagonal block is the
  * constant data BLOCK.
  *
- * Parameters: linOp with type MUL
+ * Parameters: linOp with type MUL_EXPR
  *
  * Returns: vector containing coefficient matrix COEFFS
  *
  */
 std::vector<Matrix> get_mul_mat(LinOp &lin) {
-	assert(lin.type == MUL);
+	assert(lin.type == MUL_EXPR);
 	Matrix block = get_constant_data(lin, false);
 	int block_rows = block.rows();
 	int block_cols = block.cols();

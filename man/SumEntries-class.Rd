@@ -6,20 +6,27 @@
 \alias{.SumEntries}
 \alias{SumEntries}
 \alias{to_numeric,SumEntries-method}
+\alias{is_atom_log_log_convex,SumEntries-method}
+\alias{is_atom_log_log_concave,SumEntries-method}
 \alias{graph_implementation,SumEntries-method}
 \title{The SumEntries class.}
 \usage{
-SumEntries(expr, axis = NA_real_)
+SumEntries(expr, axis = NA_real_, keepdims = FALSE)
 
 \S4method{to_numeric}{SumEntries}(object, values)
 
-\S4method{graph_implementation}{SumEntries}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{is_atom_log_log_convex}{SumEntries}(object)
+
+\S4method{is_atom_log_log_concave}{SumEntries}(object)
+
+\S4method{graph_implementation}{SumEntries}(object, arg_objs, dim, data = NA_real_)
 }
 \arguments{
 \item{expr}{An \linkS4class{Expression} representing a vector or matrix.}
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 
 \item{object}{A \linkS4class{SumEntries} object.}
 
@@ -27,7 +34,7 @@ SumEntries(expr, axis = NA_real_)
 
 \item{arg_objs}{A list of linear expressions for each argument.}
 
-\item{size}{A vector with two elements representing the size of the resulting expression.}
+\item{dim}{A vector representing the dimensions of the resulting expression.}
 
 \item{data}{A list of additional data required by the atom.}
 }
@@ -38,6 +45,10 @@ This class represents the sum of all entries in a vector or matrix.
 \itemize{
 \item \code{to_numeric}: Sum the entries along the specified axis.
 
+\item \code{is_atom_log_log_convex}: Is the atom log-log convex?
+
+\item \code{is_atom_log_log_concave}: Is the atom log-log concave?
+
 \item \code{graph_implementation}: The graph implementation of the atom.
 }}
 
@@ -47,5 +58,7 @@ This class represents the sum of all entries in a vector or matrix.
 \item{\code{expr}}{An \linkS4class{Expression} representing a vector or matrix.}
 
 \item{\code{axis}}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{\code{keepdims}}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 }}
 

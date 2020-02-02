@@ -1,4 +1,4 @@
-#include "CVXR_types.h"
+#include "CVXR.h"
 
 //' Create a new LinOpVector object.
 //'

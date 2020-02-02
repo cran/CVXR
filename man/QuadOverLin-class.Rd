@@ -5,25 +5,32 @@
 \alias{QuadOverLin-class}
 \alias{.QuadOverLin}
 \alias{QuadOverLin}
-\alias{validate_args,QuadOverLin-method}
+\alias{allow_complex,QuadOverLin-method}
 \alias{to_numeric,QuadOverLin-method}
-\alias{size_from_args,QuadOverLin-method}
+\alias{validate_args,QuadOverLin-method}
+\alias{dim_from_args,QuadOverLin-method}
 \alias{sign_from_args,QuadOverLin-method}
 \alias{is_atom_convex,QuadOverLin-method}
 \alias{is_atom_concave,QuadOverLin-method}
+\alias{is_atom_log_log_convex,QuadOverLin-method}
+\alias{is_atom_log_log_concave,QuadOverLin-method}
 \alias{is_incr,QuadOverLin-method}
 \alias{is_decr,QuadOverLin-method}
 \alias{is_quadratic,QuadOverLin-method}
-\alias{graph_implementation,QuadOverLin-method}
+\alias{is_qpwa,QuadOverLin-method}
+\alias{.domain,QuadOverLin-method}
+\alias{.grad,QuadOverLin-method}
 \title{The QuadOverLin class.}
 \usage{
 QuadOverLin(x, y)
 
-\S4method{validate_args}{QuadOverLin}(object)
+\S4method{allow_complex}{QuadOverLin}(object)
 
 \S4method{to_numeric}{QuadOverLin}(object, values)
 
-\S4method{size_from_args}{QuadOverLin}(object)
+\S4method{validate_args}{QuadOverLin}(object)
+
+\S4method{dim_from_args}{QuadOverLin}(object)
 
 \S4method{sign_from_args}{QuadOverLin}(object)
 
@@ -31,14 +38,21 @@ QuadOverLin(x, y)
 
 \S4method{is_atom_concave}{QuadOverLin}(object)
 
+\S4method{is_atom_log_log_convex}{QuadOverLin}(object)
+
+\S4method{is_atom_log_log_concave}{QuadOverLin}(object)
+
 \S4method{is_incr}{QuadOverLin}(object, idx)
 
 \S4method{is_decr}{QuadOverLin}(object, idx)
 
 \S4method{is_quadratic}{QuadOverLin}(object)
 
-\S4method{graph_implementation}{QuadOverLin}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{is_qpwa}{QuadOverLin}(object)
+
+\S4method{.domain}{QuadOverLin}(object)
+
+\S4method{.grad}{QuadOverLin}(object, values)
 }
 \arguments{
 \item{x}{An \linkS4class{Expression} or numeric matrix.}
@@ -47,26 +61,22 @@ QuadOverLin(x, y)
 
 \item{object}{A \linkS4class{QuadOverLin} object.}
 
-\item{values}{A list of arguments to the atom.}
+\item{values}{A list of numeric values for the arguments}
 
 \item{idx}{An index into the atom.}
-
-\item{arg_objs}{A list of linear expressions for each argument.}
-
-\item{size}{A vector with two elements representing the size of the resulting expression.}
-
-\item{data}{A list of additional data required by the atom.}
 }
 \description{
 This class represents the sum of squared entries in X divided by a scalar y, \eqn{\sum_{i,j} X_{i,j}^2/y}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Check the dimensions of the arguments.
+\item \code{allow_complex}: Does the atom handle complex numbers?
 
 \item \code{to_numeric}: The sum of the entries of \code{x} squared over \code{y}.
 
-\item \code{size_from_args}: The atom is a scalar.
+\item \code{validate_args}: Check the dimensions of the arguments.
+
+\item \code{dim_from_args}: The atom is a scalar.
 
 \item \code{sign_from_args}: The atom is positive.
 
@@ -74,13 +84,21 @@ This class represents the sum of squared entries in X divided by a scalar y, \eq
 
 \item \code{is_atom_concave}: The atom is not concave.
 
-\item \code{is_incr}: A logical value indicating whether the atom is weakly increasing.
+\item \code{is_atom_log_log_convex}: Is the atom log-log convex?
 
-\item \code{is_decr}: A logical value indicating whether the atom is weakly decreasing.
+\item \code{is_atom_log_log_concave}: Is the atom log-log concave?
 
-\item \code{is_quadratic}: True if \code{x} is affine and \code{y} is constant.
+\item \code{is_incr}: A logical value indicating whether the atom is weakly increasing in argument \code{idx}.
 
-\item \code{graph_implementation}: The graph implementation of the atom.
+\item \code{is_decr}: A logical value indicating whether the atom is weakly decreasing in argument \code{idx}.
+
+\item \code{is_quadratic}: Quadratic if \code{x} is affine and \code{y} is constant.
+
+\item \code{is_qpwa}: Quadratic of piecewise affine if \code{x} is piecewise linear and \code{y} is constant.
+
+\item \code{.domain}: Returns constraints describing the domain of the node
+
+\item \code{.grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
 }}
 
 \section{Slots}{

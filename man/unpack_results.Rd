@@ -5,14 +5,16 @@
 \alias{unpack_results}
 \title{Parse output from a solver and updates problem state}
 \usage{
-unpack_results(object, solver, results_dict)
+unpack_results(object, solution, chain, inverse_data)
 }
 \arguments{
 \item{object}{A \linkS4class{Problem} object.}
 
-\item{solver}{A character string specifying the solver such as "ECOS", "SCS" etc.}
+\item{solution}{A \linkS4class{Solution} object.}
 
-\item{results_dict}{the solver output}
+\item{chain}{The corresponding solving \linkS4class{Chain}.}
+
+\item{inverse_data}{A \linkS4class{InverseData} object or list containing data necessary for the inversion.}
 }
 \value{
 A list containing the solution to the problem:
@@ -51,7 +53,7 @@ ecos_output <- ECOSolveR::ECOS_csolve(
 res1 <- unpack_results(prob1, "ECOS", ecos_output)
 # Without DCP validation (so be sure of your math), above is equivalent to:
 # res1 <- solve(prob1, solver = "ECOS")
-X <- Semidef(2)
+X <- Variable(2,2, PSD = TRUE)
 Fmat <- rbind(c(1,0), c(0,-1))
 obj <- Minimize(sum_squares(X - Fmat))
 prob2 <- Problem(obj)

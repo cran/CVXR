@@ -7,7 +7,7 @@
 \alias{max.Expression}
 \title{Maximum}
 \usage{
-max_entries(x, axis = NA_real_)
+max_entries(x, axis = NA_real_, keepdims = FALSE)
 
 \method{max}{Expression}(..., na.rm = FALSE)
 }
@@ -15,6 +15,8 @@ max_entries(x, axis = NA_real_)
 \item{x}{An \linkS4class{Expression}, vector, or matrix.}
 
 \item{axis}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{keepdims}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 
 \item{...}{Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.}
 
@@ -27,6 +29,17 @@ An \linkS4class{Expression} representing the maximum of the input.
 The maximum of an expression.
 }
 \examples{
+x <- Variable(2)
+val <- matrix(c(-5,-10))
+prob <- Problem(Minimize(max_entries(x)), list(x == val))
+result <- solve(prob)
+result$value
+
+A <- Variable(2,2)
+val <- rbind(c(-5,2), c(-3,1))
+prob <- Problem(Minimize(max_entries(A, axis = 1)[2,1]), list(A == val))
+result <- solve(prob)
+result$value
 x <- Variable(2)
 val <- matrix(c(-5,-10))
 prob <- Problem(Minimize(max_entries(x)), list(x == val))

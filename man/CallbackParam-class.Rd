@@ -6,46 +6,35 @@
 \alias{.CallbackParam}
 \alias{CallbackParam}
 \alias{value,CallbackParam-method}
-\alias{get_data,CallbackParam-method}
 \title{The CallbackParam class.}
 \usage{
-CallbackParam(callback, rows = 1, cols = 1, name = NA_character_,
-  sign = UNKNOWN)
+CallbackParam(callback, dim = NULL, ...)
 
 \S4method{value}{CallbackParam}(object)
-
-\S4method{get_data}{CallbackParam}(object)
 }
 \arguments{
-\item{callback}{A numeric element, vector, matrix, or data.frame}
+\item{callback}{A callback function that generates the parameter value.}
 
-\item{rows}{The number of rows in the parameter.}
+\item{dim}{The dimensions of the parameter.}
 
-\item{cols}{The number of columns in the parameter.}
-
-\item{name}{(Optional) A character string representing the name of the parameter.}
-
-\item{sign}{A character string indicating the sign of the parameter. Must be "ZERO", "POSITIVE", "NEGATIVE", or "UNKNOWN".}
+\item{...}{Additional attribute arguments. See \linkS4class{Leaf} for details.}
 
 \item{object}{A \linkS4class{CallbackParam} object.}
 }
 \description{
 This class represents a parameter whose value is obtained by evaluating a function.
 }
-\section{Methods (by generic)}{
-\itemize{
-\item \code{get_data}: Returns \code{list(callback, rows, cols, name, sign string)}.
-}}
-
 \section{Slots}{
 
 \describe{
-\item{\code{callback}}{A numeric element, vector, matrix, or data.frame.}
+\item{\code{callback}}{A callback function that generates the parameter value.}
+
+\item{\code{dim}}{The dimensions of the parameter.}
 }}
 
 \examples{
 x <- Variable(2)
-dim <- size(x)
-y <- CallbackParam(value(x), dim[1], dim[2], sign = "POSITIVE")
+fun <- function() { value(x) }
+y <- CallbackParam(fun, dim(x), nonneg = TRUE)
 get_data(y)
 }

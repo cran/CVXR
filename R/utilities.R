@@ -1,28 +1,3 @@
-#'
-#' The Canonical class.
-#'
-#' This virtual class represents a canonical expression.
-#'
-#' @rdname Canonical-class
-setClass("Canonical", contains = "VIRTUAL")
-
-#' @param object A \linkS4class{Canonical} object.
-#' @describeIn Canonical The graph implementation of the input.
-setMethod("canonicalize", "Canonical", function(object) { stop("Unimplemented") })
-setMethod("canonical_form", "Canonical", function(object) { canonicalize(object) })
-
-#' @describeIn Canonical List of \linkS4class{Variable} objects in the expression.
-setMethod("variables", "Canonical", function(object) { stop("Unimplemented") })
-
-#' @describeIn Canonical List of \linkS4class{Parameter} objects in the expression.
-setMethod("parameters", "Canonical", function(object) { stop("Unimplemented") })
-
-#' @describeIn Canonical List of \linkS4class{Constant} objects in the expression.
-setMethod("constants", "Canonical", function(object) { stop("Unimplemented") })
-
-#' @describeIn Canonical Information needed to reconstruct the expression aside from its arguments.
-setMethod("get_data", "Canonical", function(object) { list() })
-
 ##########################
 #                        #
 # CVXR Package Constants #
@@ -38,9 +13,14 @@ VAR_PREFIX = "var"
 # Prefix for default named parameters.
 PARAM_PREFIX = "param"
 
-# Constraint types
+# Constraint types.
 EQ_CONSTR = "=="
 INEQ_CONSTR = "<="
+
+# Atom groups.
+SOC_ATOMS = c("GeoMean", "Pnorm", "QuadForm", "QuadOverLin", "Power")
+EXP_ATOMS = c("LogSumExp", "LogDet", "Entr", "Exp", "KLDiv", "Log", "Log1p", "Logistic")
+PSD_ATOMS = c("LambdaMax", "LambdaSumLargest", "LogDet", "MatrixFrac", "NormNuc", "SigmaMax")
 
 # Solver Constants
 OPTIMAL = "optimal"
@@ -49,11 +29,14 @@ INFEASIBLE = "infeasible"
 INFEASIBLE_INACCURATE = "infeasible_inaccurate"
 UNBOUNDED = "unbounded"
 UNBOUNDED_INACCURATE = "unbounded_inaccurate"
+USER_LIMIT <- "user_limit"
 SOLVER_ERROR = "solver_error"
 # Statuses that indicate a solution was found.
 SOLUTION_PRESENT = c(OPTIMAL, OPTIMAL_INACCURATE)
 # Statuses that indicate the problem is infeasible or unbounded.
 INF_OR_UNB = c(INFEASIBLE, INFEASIBLE_INACCURATE, UNBOUNDED, UNBOUNDED_INACCURATE)
+# Statuses that indicate an error.
+ERROR <- c(USER_LIMIT, SOLVER_ERROR)
 
 ## Codes from lpSolveAPI solver (partial at the moment)
 DEGENERATE = "degenerate"
@@ -65,18 +48,25 @@ BB_FAILED = "branch_and_bound_failure"
 UNDEFINED = "undefined"
 
 # Solver names.
-CVXOPT_NAME = "CVXOPT"
-GLPK_NAME = "GLPK"
-GLPK_MI_NAME = "GLPK_MI"
 CBC_NAME = "CBC"
+CPLEX_NAME = "CPLEX"
+CVXOPT_NAME = "CVXOPT"
 ECOS_NAME = "ECOS"
 ECOS_BB_NAME = "ECOS_BB"
-SCS_NAME = "SCS"
+GLPK_NAME = "GLPK"
+GLPK_MI_NAME = "GLPK_MI"
 GUROBI_NAME = "GUROBI"
+JULIA_OPT_NAME = "JULIA_OPT"
 MOSEK_NAME = "MOSEK"
-LS_NAME = "LS"
-LPSOLVE_NAME = "LPSOLVE"
-SOLVERS_NAME <- c(ECOS_NAME, ECOS_BB_NAME, SCS_NAME, LPSOLVE_NAME, GLPK_NAME, MOSEK_NAME, GUROBI_NAME)   # TODO: Add more when we implement other solvers
+OSQP_NAME = "OSQP"
+SCS_NAME = "SCS"
+SUPER_SCS_NAME = "SUPER_SCS"
+XPRESS_NAME = "XPRESS"
+# SOLVERS_NAME <- c(ECOS_NAME, ECOS_BB_NAME, SCS_NAME, LPSOLVE_NAME, GLPK_NAME, MOSEK_NAME, GUROBI_NAME)   # TODO: Add more when we implement other solvers
+
+# Xpress-specific items.
+XPRESS_IIS = "XPRESS_IIS"
+XPRESS_TROW = "XPRESS_TROW"
 
 # Parallel (meta) solver
 PARALLEL = "parallel"
@@ -89,7 +79,7 @@ EQ_MAP = "1"
 LEQ_MAP = "2"
 SOC_MAP = "3"
 SOC_EW_MAP = "4"
-SDP_MAP = "5"
+PSD_MAP = "5"
 EXP_MAP = "6"
 BOOL_MAP = "7"
 INT_MAP = "8"
@@ -98,7 +88,7 @@ INT_MAP = "8"
 EQ_DIM = "f"
 LEQ_DIM = "l"
 SOC_DIM = "q"
-SDP_DIM = "s"
+PSD_DIM = "s"
 EXP_DIM = "ep"
 
 # Keys for non-convex constraints.
@@ -114,6 +104,7 @@ OBJ_OFFSET = "obj_offset"
 PRIMAL = "primal"
 EQ_DUAL = "eq_dual"
 INEQ_DUAL = "ineq_dual"
+SOLVER_NAME = "solver"
 SOLVE_TIME = "solve_time"  # in seconds
 SETUP_TIME = "setup_time"  # in seconds
 NUM_ITERS = "num_iters"    # number of iterations
@@ -121,6 +112,8 @@ NUM_ITERS = "num_iters"    # number of iterations
 # Keys for problem data dict.
 C_KEY = "c"
 OFFSET = "offset"
+P_KEY = "P"
+Q_KEY = "q"
 A_KEY = "A"
 B_KEY = "b"
 G_KEY = "G"
@@ -136,39 +129,151 @@ AFFINE = "AFFINE"
 CONVEX = "CONVEX"
 CONCAVE = "CONCAVE"
 ZERO = "ZERO"
-POSITIVE = "POSITIVE"
-NEGATIVE = "NEGATIVE"
+NONNEG = "NONNEGATIVE"
+NONPOS = "NONPOSITIVE"
 UNKNOWN = "UNKNOWN"
 
-SIGN_STRINGS = c(ZERO, POSITIVE, NEGATIVE, UNKNOWN)
+# Keys for log-log curvature
+LOG_LOG_CONSTANT = "LOG_LOG_CONSTANT"
+LOG_LOG_AFFINE = "LOG_LOG_AFFINE"
+LOG_LOG_CONVEX = "LOG_LOG_CONVEX"
+LOG_LOG_CONCAVE = "LOG_LOG_CONCAVE"
 
-################################
-#                              #
-# Utility functions for shapes #
-#                              #
-################################
-sum_shapes <- function(shapes) {
-  rows <- max(sapply(shapes, function(shape) { shape[1] }))
-  cols <- max(sapply(shapes, function(shape) { shape[2] }))
+SIGN_STRINGS = c(ZERO, NONNEG, NONPOS, UNKNOWN)
 
-  # Validate shapes
-  for(shape in shapes) {
-    if(!all(shape == c(1,1)) && !all(shape == c(rows,cols)))
-      stop("Incompatible dimensions")
+# Numerical tolerances.
+EIGVAL_TOL = 1e-10
+PSD_NSD_PROJECTION_TOL = 1e-8
+GENERAL_PROJECTION_TOL = 1e-10
+SPARSE_PROJECTION_TOL = 1e-10
+
+SolveResult <- list(SolveResult = list("opt_value", "status", "primal_values", "dual_values"))
+
+apply_with_keepdims <- function(x, fun, axis = NA_real_, keepdims = FALSE) {
+  if(is.na(axis))
+    result <- fun(x)
+  else {
+    if(is.vector(x))
+      x <- matrix(x, ncol = 1)
+    result <- apply(x, axis, fun)
   }
-  c(rows, cols)
+
+  if(keepdims) {
+    new_dim <- dim(x)
+    if(is.null(new_dim))
+      return(result)
+    collapse <- setdiff(1:length(new_dim), axis)
+    new_dim[collapse] <- 1
+    dim(result) <- new_dim
+  }
+  result
 }
 
-mul_shapes <- function(lh_shape, rh_shape) {
-  if(all(lh_shape == c(1,1)))
-    return(rh_shape)
-  else if(all(rh_shape == c(1,1)))
-    return(lh_shape)
-  else {
-    if(lh_shape[2] != rh_shape[1])
-      stop("Incompatible dimensions")
-    return(c(lh_shape[1], rh_shape[2]))
+####################################
+#                                  #
+# Utility functions for dimensions #
+#                                  #
+####################################
+sum_dims <- function(dims) {
+  if(length(dims) == 0)
+    return(NULL)
+  else if(length(dims) == 1)
+    return(dims[[1]])
+
+  dim <- dims[[1]]
+  for(t in dims[2:length(dims)]) {
+    # Only allow broadcasting for 0-D arrays or summation of scalars.
+    # if(!(length(dim) == length(t) && all(dim == t)) && (!is.null(dim) && sum(dim != 1) != 0) && (!is.null(t) && sum(t != 1) != 0))
+    # if(!identical(dim, t) && (!is.null(dim) && !all(dim == 1)) && (!is.null(t) && !all(t == 1)))
+    if(!((length(dim) == length(t) && all(dim == t)) || all(dim == 1) || all(t == 1)))
+      stop("Cannot broadcast dimensions")
+
+    if(length(dim) >= length(t))
+      longer <- dim
+    else
+      longer <- t
+
+    if(length(dim) < length(t))
+      shorter <- dim
+    else
+      shorter <- t
+
+    offset <- length(longer) - length(shorter)
+    if(offset == 0)
+      prefix <- c()
+    else
+      prefix <- longer[1:offset]
+    suffix <- c()
+
+    if(length(shorter) > 0) {
+      for(idx in length(shorter):1) {
+        d1 <- longer[offset + idx]
+        d2 <- shorter[idx]
+        # if(!(length(d1) == length(d2) && all(d1 == d2)) && !(d1 == 1 || d2 == 1))
+        if(d1 != d2 && !(d1 == 1 || d2 == 1))
+          stop("Incompatible dimensions")
+        if(d1 >= d2)
+          new_d <- d1
+        else
+          new_d <- d2
+        suffix <- c(new_d, suffix)
+      }
+    }
+    dim <- c(prefix, suffix)
   }
+  return(dim)
+}
+
+mul_dims_promote <- function(lh_dim, rh_dim) {
+  if(is.null(lh_dim) || is.null(rh_dim) || length(lh_dim) == 0 || length(rh_dim) == 0)
+    stop("Multiplication by scalars is not permitted")
+
+  if(length(lh_dim) == 1)
+    lh_dim <- c(1, lh_dim)
+  if(length(rh_dim) == 1)
+    rh_dim <- c(rh_dim, 1)
+
+  lh_mat_dim <- lh_dim[(length(lh_dim)-1):length(lh_dim)]
+  rh_mat_dim <- rh_dim[(length(rh_dim)-1):length(rh_dim)]
+  if(length(lh_dim) > 2)
+    lh_head <- lh_dim[1:(length(lh_dim)-2)]
+  else
+    lh_head <- c()
+  if(length(rh_dim) > 2)
+    rh_head <- rh_dim[1:(length(rh_dim)-2)]
+  else
+    rh_head <- c()
+
+  # if(lh_mat_dim[2] != rh_mat_dim[1] || !(length(lh_head) == length(rh_head) && all(lh_head == rh_head)))
+  if(lh_mat_dim[2] != rh_mat_dim[1] || !identical(lh_head, rh_head))
+    stop("Incompatible dimensions")
+  list(lh_dim, rh_dim, c(lh_head, lh_mat_dim[1], rh_mat_dim[2]))
+}
+
+mul_dims <- function(lh_dim, rh_dim) {
+  lh_old <- lh_dim
+  rh_old <- rh_dim
+
+  promoted <- mul_dims_promote(lh_dim, rh_dim)
+  lh_dim <- promoted[[1]]
+  rh_dim <- promoted[[2]]
+  dim <- promoted[[3]]
+
+  # if(!(length(lh_dim) == length(lh_old) && all(lh_dim == lh_old)))
+  if(!identical(lh_dim, lh_old)) {
+    if(length(dim) <= 1)
+      dim <- c()
+    else
+      dim <- dim[2:length(dim)]
+  }
+  # if(!(length(rh_dim) == length(rh_old) && all(rh_dim == rh_old)))
+  if(!identical(rh_dim, rh_old)) {
+    if(length(dim) <= 1)
+      dim <- c()
+    else
+      dim <- dim[1:(length(dim)-1)]
+  }
+  return(dim)
 }
 
 ###############################
@@ -177,18 +282,27 @@ mul_shapes <- function(lh_shape, rh_shape) {
 #                             #
 ###############################
 sum_signs <- function(exprs) {
-  is_pos <- all(sapply(exprs, function(expr) { is_positive(expr) }))
-  is_neg <- all(sapply(exprs, function(expr) { is_negative(expr) }))
+  is_pos <- all(sapply(exprs, function(expr) { is_nonneg(expr) }))
+  is_neg <- all(sapply(exprs, function(expr) { is_nonpos(expr) }))
   c(is_pos, is_neg)
 }
 
 mul_sign <- function(lh_expr, rh_expr) {
   # ZERO * ANYTHING == ZERO
-  # POSITIVE * POSITIVE == POSITIVE
-  # NEGATIVE * POSITIVE == NEGATIVE
-  # NEGATIVE * NEGATIVE == POSITIVE
-  is_pos <- (is_zero(lh_expr) || is_zero(rh_expr)) || (is_positive(lh_expr) && is_positive(rh_expr)) || (is_negative(lh_expr) && is_negative(rh_expr))
-  is_neg <- (is_zero(lh_expr) || is_zero(rh_expr)) || (is_positive(lh_expr) && is_negative(rh_expr)) || (is_negative(lh_expr) && is_positive(rh_expr))
+  # NONNEGATIVE * NONNEGATIVE == NONNEGATIVE
+  # NONPOSITIVE * NONNEGATIVE == NONPOSITIVE
+  # NONPOSITIVE * NONPOSITIVE == NONNEGATIVE
+  lh_nonneg <- is_nonneg(lh_expr)
+  rh_nonneg <- is_nonneg(rh_expr)
+  lh_nonpos <- is_nonpos(lh_expr)
+  rh_nonpos <- is_nonpos(rh_expr)
+
+  lh_zero <- lh_nonneg && lh_nonpos
+  rh_zero <- rh_nonneg && rh_nonpos
+  is_zero <- lh_zero || rh_zero
+
+  is_pos <- is_zero || (lh_nonneg && rh_nonneg) || (lh_nonpos && rh_nonpos)
+  is_neg <- is_zero || (lh_nonneg && rh_nonpos) || (lh_nonpos && rh_nonneg)
   c(is_pos, is_neg)
 }
 
@@ -197,6 +311,7 @@ mul_sign <- function(lh_expr, rh_expr) {
 # Utility functions for constraints #
 #                                   #
 #####################################
+# Formats all the row/column cones for the solver.
 format_axis <- function(t, X, axis) {
   # Reduce to norms of columns
   if(axis == 1)
@@ -204,48 +319,57 @@ format_axis <- function(t, X, axis) {
 
   # Create matrices Tmat, Xmat such that Tmat*t + Xmat*X
   # gives the format for the elementwise cone constraints.
-  cone_size <- 1 + size(X)[1]
+  cone_size <- 1 + nrow(X)
   terms <- list()
 
-  # Make t_mat
-  mat_size <- c(cone_size, 1)
-  prod_size <- c(cone_size, size(t)[1])
-  t_mat <- sparseMatrix(i = 1, j = 1, x = 1.0, dims = mat_size)
-  t_mat <- create_const(t_mat, mat_size, sparse = TRUE)
-  terms <- c(terms, list(lo.mul_expr(t_mat, lo.transpose(t), prod_size)))
+  # Make t_mat.
+  mat_dim <- c(cone_size, 1)
+  t_mat <- sparseMatrix(i = 1, j = 1, x = 1.0, dims = mat_dim)
+  t_mat <- create_const(t_mat, mat_dim, sparse = TRUE)
+  t_vec <- t
+  if(is.null(dim(t)))   # t is scalar.
+    t_vec <- lo.reshape(t, c(1,1))
+  else   # t is 1-D.
+    t_vec <- lo.reshape(t, c(1, nrow(t)))
+  mul_dim <- c(cone_size, ncol(t_vec))
+  terms <- c(terms, list(lo.mul_expr(t_mat, t_vec, mul_dim)))
 
-  # Make X_mat
-  mat_size <- c(cone_size, size(X)[1])
-  prod_size <- c(cone_size, size(X)[2])
+  # Make X_mat.
+  if(length(dim(X)) == 1)
+    X <- lo.reshape(X, c(nrow(X), 1))
+  mat_dim <- c(cone_size, nrow(X))
   val_arr <- rep(1.0, cone_size - 1)
   row_arr <- 2:cone_size
   col_arr <- 1:(cone_size - 1)
-  X_mat <- sparseMatrix(i = row_arr, j = col_arr, x = val_arr, dims = mat_size)
-  X_mat <- create_const(X_mat, mat_size, sparse = TRUE)
-  terms <- c(terms, list(lo.mul_expr(X_mat, X, prod_size)))
+  X_mat <- sparseMatrix(i = row_arr, j = col_arr, x = val_arr, dims = mat_dim)
+  X_mat <- create_const(X_mat, mat_dim, sparse = TRUE)
+  mul_dim <- c(cone_size, ncol(X))
+  terms <- c(terms, list(lo.mul_expr(X_mat, X, mul_dim)))
   list(create_geq(lo.sum_expr(terms)))
 }
 
+# Formats all the elementwise cones for the solver.
 format_elemwise <- function(vars_) {
   # Create matrices A_i such that 0 <= A_0*x_0 + ... + A_n*x_n
   # gives the format for the elementwise cone constraints.
   spacing <- length(vars_)
-  prod_size <- c(spacing*vars_[[1]]$size[1], vars_[[1]]$size[2])
 
   # Matrix spaces out columns of the LinOp expressions
-  mat_size <- c(spacing*vars_[[1]]$size[1], vars_[[1]]$size[1])
+  var_dim <- vars_[[1]]$dim
+  mat_dim <- c(spacing*var_dim[1], var_dim[1])
 
-  mats <- lapply(0:(spacing-1), function(offset) { get_spacing_matrix(mat_size, spacing, offset) })
-  terms <- mapply(function(var, mat) { list(lo.mul_expr(mat, var, prod_size)) }, vars_, mats)
+  mats <- lapply(0:(spacing-1), function(offset) { get_spacing_matrix(mat_dim, spacing, offset) })
+  terms <- mapply(function(var, mat) { list(lo.mul_expr(mat, var)) }, vars_, mats)
   list(create_geq(lo.sum_expr(terms)))
 }
 
-get_spacing_matrix <- function(size, spacing, offset) {
-  col_arr <- 1:size[2]
+# Returns a sparse matrix LinOp that spaces out an expression.
+get_spacing_matrix <- function(dim, spacing, offset) {
+  col_arr <- 1:dim[2]
   row_arr <- spacing*(col_arr - 1) + 1 + offset
-  val_arr <- rep(1.0, size[2])
-  mat <- sparseMatrix(i = row_arr, j = col_arr, x = val_arr, dims = size)
-  create_const(mat, size, sparse = TRUE)
+  val_arr <- rep(1.0, dim[2])
+  mat <- sparseMatrix(i = row_arr, j = col_arr, x = val_arr, dims = dim)
+  create_const(mat, dim, sparse = TRUE)
 }
 
 ###################################
@@ -274,361 +398,27 @@ error_grad <- function(expr) {
   grad
 }
 
-flatten_list <- function(x) {
-  y <- list()
-  rapply(x, function(x) y <<- c(y,x))
-  y
-}
-
-# #
-# # The QuadCoeffExtractor class
-# #
-# # Given a quadratic expression of size m*n, this class extracts the coefficients
-# # (Ps, Q, R) such that the (i,j) entry of the expression is given by
-# # t(X) %*% Ps[[k]] %*% x + Q[k,] %*% x + R[k]
-# # where k = i + j*m. x is the vectorized variables indexed by id_map
-# #
-# setClass("QuadCoeffExtractor", representation(id_map = "list", N = "numeric"))
-#
-# get_coeffs.QuadCoeffExtractor <- function(object, expr) {
-#   if(is_constant(expr))
-#     return(.coeffs_constant(object, expr))
-#   else if(is_affine(expr))
-#     return(.coeffs_affine(object, expr))
-#   else if(is(expr, "AffineProd"))
-#     return(.coeffs_affine_prod(object, expr))
-#   else if(is(expr, "QuadOverLin"))
-#     return(.coeffs_quad_over_lin(object, expr))
-#   else if(is(expr, "Power"))
-#     return(.coeffs_power(object, expr))
-#   else if(is(expr, "MatrixFrac"))
-#     return(.coeffs_matrix_frac(object, expr))
-#   else if(is(expr, "AffAtom"))
-#     return(.coeffs_affine_atom(object, expr))
-#   else
-#     stop("Unknown expression type: ", class(expr))
-# }
-#
-# .coeffs_constant.QuadCoeffExtractor <- function(object, expr) {
-#   if(is_scalar(expr)) {
-#     sz <- 1
-#     R <- matrix(value(expr))
-#   } else {
-#     sz <- prod(size(expr))
-#     R <- matrix(value(expr), nrow = sz)    # TODO: Check if this should be transposed
-#   }
-#   Ps <- lapply(1:sz, function(i) { sparseMatrix(i = c(), j = c(), dims = c(object@N, object@N)) })
-#   Q <- sparseMatrix(i = c(), j = c(), dims = c(sz, object@N))
-#   list(Ps, Q, R)
-# }
-#
-# .coeffs_affine.QuadCoeffExtractor <- function(object, expr) {
-#   sz <- prod(size(expr))
-#   canon <- canonical_form(expr)
-#   prob_mat <- get_problem_matrix(list(create_eq(canon[[1]])), object@id_map)
-#
-#   V <- prob_mat[[1]]
-#   I <- prob_mat[[2]]
-#   J <- prob_mat[[3]]
-#   R <- prob_mat[[4]]
-#
-#   Q <- sparseMatrix(i = I, j = J, x = V, dims = c(sz, object@N))
-#   Ps <- lapply(1:sz, function(i) { sparseMatrix(i = c(), j = c(), dims = c(object@N, object@N)) })
-#   list(Ps, Q, as.vector(R))   # TODO: Check if R is flattened correctly
-# }
-#
-# .coeffs_affine_prod.QuadCoeffExtractor <- function(object, expr) {
-#   XPQR <- .coeffs_affine(expr@args[[1]])
-#   YPQR <- .coeffs_affine(expr@args[[2]])
-#   Xsize <- size(expr@args[[1]])
-#   Ysize <- size(expr@args[[2]])
-#
-#   XQ <- XPQR[[2]]
-#   XR <- XPQR[[3]]
-#   YQ <- YPQR[[2]]
-#   YR <- YPQR[[3]]
-#   m <- Xsize[1]
-#   p <- Xsize[2]
-#   n <- Ysize[2]
-#
-#   Ps  <- list()
-#   Q <- sparseMatrix(i = c(), j = c(), dims = c(m*n, object@N))
-#   R <- rep(0, m*n)
-#
-#   ind <- 0
-#   for(j in 1:n) {
-#     for(i in 1:m) {
-#       M <- sparseMatrix(i = c(), j = c(), dims = c(object@N, object@N))
-#       for(k in 1:p) {
-#         Xind <- k*m + i
-#         Yind <- j*p + k
-#
-#         a <- XQ[Xind,]
-#         b <- XR[Xind]
-#         c <- YQ[Yind,]
-#         d <- YR[Yind]
-#
-#         M <- M + t(a) %*% c
-#         Q[ind,] <- Q[ind,] + b*c + d*a
-#         R[ind] <- R[ind] + b*d
-#       }
-#       Ps <- c(Ps, Matrix(M, sparse = TRUE))
-#       ind <- ind + 1
-#     }
-#   }
-#   list(Ps, Matrix(Q, sparse = TRUE), R)
-# }
-#
-# .coeffs_quad_over_lin.QuadCoeffExtractor <- function(object, expr) {
-#   coeffs <- .coeffs_affine(object, expr@args[[1]])
-#   A <- coeffs[[2]]
-#   b <- coeffs[[3]]
-#
-#   P <- t(A) %*% A
-#   q <- Matrix(2*t(b) %*% A)
-#   r <- sum(b*b)
-#   y <- value(expr@args[[2]])
-#   list(list(P/y), q/y, r/y)
-# }
-#
-# .coeffs_power.QuadCoeffExtractor <- function(object, expr) {
-#   if(expr@p == 1)
-#     return(get_coeffs(object, expr@args[[1]]))
-#   else if(expr@p == 2) {
-#     coeffs <- .coeffs_affine(object, expr@args[[1]])
-#     A <- coeffs[[2]]
-#     b <- coeffs[[3]]
-#
-#     Ps <- lapply(1:nrow(A), function(i) { Matrix(t(A[i,]) %*% A[i,], sparse = TRUE) })
-#     Q <- 2*Matrix(diag(b) %*% A, sparse = TRUE)
-#     R <- b^2
-#     return(list(Ps, Q, R))
-#   } else
-#     stop("Error while processing Power")
-# }
-#
-# .coeffs_matrix_frac <- function(object, expr) {
-#   coeffs <- .coeffs_affine(expr@args[[1]])
-#   A <- coeffs[[2]]
-#   b <- coeffs[[3]]
-#   arg_size <- size(expr@args[[1]])
-#   m <- arg_size[1]
-#   n <- arg_size[2]
-#   Pinv <- base::solve(value(expr@args[[2]]))
-#
-#   M <- sparseMatrix(i = c(), j = c(), dims = c(object@N, object@N))
-#   Q <- sparseMatrix(i = c(), j = c(), dims = c(1, object@N))
-#   R <- 0
-#
-#   for(i in seq(1, m*n, m)) {
-#     A2 <- A[i:(i+m),]
-#     b2 <- b[i:(i+m)]
-#
-#     M <- M + t(A2) %*% Pinv %*% A2
-#     Q <- Q + 2*t(A2) %*% (Pinv %*% b2)
-#     R <- R + sum(b2 * (Pinv %*% b2))
-#   }
-#   list(list(Matrix(M, sparse = TRUE)), Matrix(Q, sparse = TRUE), R)
-# }
-#
-# .coeffs_affine_atom <- function(object, expr) {
-#   sz <- prod(size(expr))
-#   Ps <- lapply(1:sz, function(i) { sparseMatrix(i = c(), j = c(), dims = c(object@N, object@N)) })
-#   Q <- sparseMatrix(i = c(), j = c(), dims = c(sz, object@N))
-#   Parg <- NA
-#   Qarg <- NA
-#   Rarg <- NA
-#
-#   fake_args <- list()
-#   offsets <- list()
-#   offset <- 0
-#   for(idx in 1:length(expr@args)) {
-#     arg <- expr@args[[idx]]
-#     if(is_constant(arg))
-#       fake_args <- c(fake_args, list(create_const(value(arg), size(arg))))
-#     else {
-#       coeffs <- get_coeffs(object, arg)
-#       if(is.na(Parg)) {
-#         Parg <- coeffs[[1]]
-#         Qarg <- coeffs[[2]]
-#         Rarg <- coeffs[[3]]
-#       } else {
-#         Parg <- Parg + coeffs[[1]]
-#         Qarg <- rbind(Qarg, q)
-#         Rarg <- c(Rarg, r)
-#       }
-#       fake_args <- c(fake_args, list(create_var(size(arg), idx)))
-#       offsets[idx] <- offset
-#       offset <- offset + prod(size(arg))
-#     }
-#   }
-#   graph <- graph_implementation(expr, fake_args, size(expr), get_data(expr))
-#
-#   # Get the matrix representation of the function
-#   prob_mat <- get_problem_matrix(list(create_eq(graph[[1]])), offsets)
-#   V <- prob_mat[[1]]
-#   I <- prob_mat[[2]]
-#   J <- prob_mat[[3]]
-#   R <- as.vector(prob_mat[[4]])   # TODO: Check matrix is flattened correctly
-#
-#   # Return AX + b
-#   for(idx in 1:length(V)) {
-#     v <- V[idx]
-#     i <- I[idx]
-#     j <- J[idx]
-#
-#     Ps[[i]] <- Ps[[i]] + v*Parg[j]
-#     Q[i,] <- Q[i,] + v*Qarg[j,]
-#     R[i] <- R[i] + v*Rarg[j]
-#   }
-#   Ps <- lapply(Ps, function(P) { Matrix(P, sparse = TRUE) })
-#   list(Ps, Matrix(Q, sparse = TRUE), R)
-# }
-
-#'
-#' The Rdict class.
-#'
-#' A simple, internal dictionary composed of a list of keys and a list of values. These keys/values can be any type, including nested lists, S4 objects, etc.
-#' Incredibly inefficient hack, but necessary for the geometric mean atom, since it requires mixed numeric/gmp objects.
-#'
-#' @slot keys A list of keys.
-#' @slot values A list of values corresponding to the keys.
-#' @name Rdict-class
-#' @aliases Rdict
-#' @rdname Rdict-class
-setClass("Rdict", representation(keys = "list", values = "list"), prototype(keys = list(), values = list()),
-         validity = function(object) {
-           if(length(object@keys) != length(object@values))
-             return("Number of keys must match number of values")
-           if(!all(unique(object@keys) != object@keys))
-             return("Keys must be unique")
-           return(TRUE)
-         })
-
-#' @param keys A list of keys.
-#' @param values A list of values corresponding to the keys.
-#' @rdname Rdict-class
-Rdict <- function(keys = list(), values = list()) {
-  new("Rdict", keys = keys, values = values)
-}
-
-#' @param x,set A \linkS4class{Rdict} object.
-#' @param name Either "keys" for a list of keys, "values" for a list of values, or "items" for a list of lists where each nested list is a (key, value) pair.
-#' @rdname Rdict-class
-setMethod("$", signature(x = "Rdict"), function(x, name) {
-  if(name == "items") {
-    items <- rep(list(list()), length(x))
-    for(i in 1:length(x)) {
-      tmp <- list(key = x@keys[[i]], value = x@values[[i]])
-      items[[i]] <- tmp
-    }
-    return(items)
-  } else
-    slot(x, name)
-})
-
-#' @rdname Rdict-class
-setMethod("length", signature(x = "Rdict"), function(x) { length(x@keys) })
-
-#' @param el The element to search the dictionary of values for.
-#' @rdname Rdict-class
-setMethod("is.element", signature(el = "ANY", set = "Rdict"), function(el, set) {
-  for(k in set@keys) {
-    if(identical(k, el))
-      return(TRUE)
-  }
-  return(FALSE)
-})
-
-#' @param i A key into the dictionary.
-#' @param j,drop,... Unused arguments.
-#' @rdname Rdict-class
-setMethod("[", signature(x = "Rdict"), function(x, i, j, ..., drop = TRUE) {
-  for(k in 1:length(x@keys)) {
-    if(length(x@keys[[k]]) == length(i) && all(x@keys[[k]] == i))
-      return(x@values[[k]])
-  }
-  stop("key ", i, " was not found")
-})
-
-#' @param value The value to assign to key \code{i}.
-#' @rdname Rdict-class
-setMethod("[<-", signature(x = "Rdict"), function(x, i, j, ..., value) {
-  if(is.element(i, x))
-    x@values[[i]] <- value
-  else {
-    x@keys <- c(x@keys, list(i))
-    x@values <- c(x@values, list(value))
-  }
-  return(x)
-})
-
-#'
-#' The Rdictdefault class.
-#'
-#' This is a subclass of \linkS4class{Rdict} that contains an additional slot for a default function, which assigns a value to an input key.
-#' Only partially implemented, but working well enough for the geometric mean. Will be combined with \linkS4class{Rdict} later.
-#'
-#' @slot keys A list of keys.
-#' @slot values A list of values corresponding to the keys.
-#' @slot default A function that takes as input a key and outputs a value to assign to that key.
-#' @seealso \linkS4class{Rdict}
-#' @name Rdictdefault-class
-#' @aliases Rdictdefault
-#' @rdname Rdictdefault-class
-setClass("Rdictdefault", representation(default = "function"), contains = "Rdict")
-
-#' @param keys A list of keys.
-#' @param values A list of values corresponding to the keys.
-#' @param default A function that takes as input a key and outputs a value to assign to that key.
-#' @rdname Rdictdefault-class
-Rdictdefault <- function(keys = list(), values = list(), default) {
-  new("Rdictdefault", keys = keys, values = values, default = default)
-}
-
-#' @param x A \linkS4class{Rdictdefault} object.
-#' @param i A key into the dictionary.
-#' @param j,drop,... Unused arguments.
-#' @rdname Rdictdefault-class
-setMethod("[", signature(x = "Rdictdefault"), function(x, i, j, ..., drop = TRUE) {
-  if(length(x@keys) > 0) {
-    for(k in 1:length(x@keys)) {
-      if(length(x@keys[[k]]) == length(i) && all(x@keys[[k]] == i))
-        return(x@values[[k]])
-    }
-  }
-
-  # TODO: Can't update in place. If key doesn't exist, want to create it with default function value.
-  stop("Unimplemented: For now, user must manually create key and set its value to default(key)")
-  x@keys <- c(x@keys, list(i))
-  x@values <- c(x@values, list(x@default(i)))
-  return(x@values[[length(x@values)]])
-})
-
 ###################
 #                 #
 # Power utilities #
 #                 #
 ###################
 gm <- function(t, x, y) {
-  two <- create_const(2, c(1,1))
-
-  length <- prod(size(t))
-  SOCAxis(lo.reshape(lo.sum_expr(list(x, y)), c(length, 1)),
-          lo.vstack(list(
-              lo.reshape(lo.sub_expr(x, y), c(1, length)),
-              lo.reshape(lo.mul_expr(two, t, size(t)), c(1, length))
-            ), c(2, length)), 2)
+  length <- size(t)
+  SOC(t = reshape_expr(x+y, c(length, 1)),
+      X = vstack(reshape_expr(x-y, c(1, length)), reshape_expr(2*t, c(1, length))),
+      axis = 2)
 }
 
 # Form internal constraints for weighted geometric mean t <= x^p
 gm_constrs <- function(t, x_list, p) {
-  if(!is_weight(p)) stop("p must be a valid weight vector")
+  if(!is_weight(p))
+    stop("p must be a valid weight vector")
   w <- dyad_completion(p)
 
   tree <- decompose(w)
-  t_size <- size(t)
-  d <- Rdictdefault(default = function(key) { create_var(t_size) })
+  t_dim <- dim(t)
+  d <- Rdictdefault(default = function(key) { new("Variable", dim = t_dim) })
   d[w] <- t
 
   if(length(x_list) < length(w))
@@ -854,6 +644,8 @@ approx_error <- function(a_orig, w_approx) {
 next_pow2 <- function(n) {
   if(n <= 0) return(1)
 
+  ## NOTE: With CVXR 1.0, R.utils is no longer imported since log2 will work on both gmp integers
+  ## and 64-bit integers
   # len <- nchar(R.utils::intToBin(n))
   # n2 <- bitwShiftL(1, len)
   # if(bitwShiftR(n2, 1) == n)
@@ -974,13 +766,15 @@ lower_bound <- function(w_dyad) {
   md <- get_max_denom(w_dyad)
 
   if(is(md, "bigq") || is(md, "bigz")) {
-    md_int <- bit64::as.integer64(gmp::asNumeric(md))
-    bstr <- sub("^[0]+", "", bit64::as.bitstring(md_int))   # Get rid of leading zeros
-    lb1 <- nchar(bstr)
-    # TODO: Should use formatBin in mpfr, but running into problems with precision
-  } else
-    lb1 <- nchar(R.utils::intToBin(md))-1
-
+    ## md_int <- bit64::as.integer64(gmp::asNumeric(md))
+    ## bstr <- sub("^[0]+", "", bit64::as.bitstring(md_int))   # Get rid of leading zeros
+    ## lb1 <- nchar(bstr)
+      ## # TODO: Should use formatBin in mpfr, but running into problems with precision
+      lb1  <- log2(bit64::as.integer64(gmp::asNumeric(md)))
+  } else {
+      ##lb1 <- nchar(R.utils::intToBin(md))-1
+      lb1  <- log2(md)
+  }
   # don't include zero entries
   lb2 <- sum(w_dyad != 0) - 1
   max(lb1, lb2)
@@ -998,53 +792,81 @@ over_bound <- function(w_dyad, tree) {
 #               #
 #################
 Key <- function(row, col) {
-  if(missing(row)) row <- "all"   # TODO: Missing row/col index implies that we select all rows/cols
-  if(missing(col)) col <- "all"
-  list(row = row, col = col, class = "key")
+    if(missing(row)) row <- NULL   # Missing row/col index implies that we select all rows/cols
+    if(missing(col)) col <- NULL
+    list(row = row, col = col, class = "key")
 }
 
-ku_validate_key <- function(key, shape) {
-  nrow <- shape[1]
-  ncol <- shape[2]
-
-  if(length(key) > 2)
+ku_validate_key <- function(key, dim) {   # TODO: This may need to be reassessed for consistency in handling keys.
+  if(length(key) > 3)
     stop("Invalid index/slice")
-  else if(length(key) == 2) {
-    key <- Key(row = key$row, col = key$col)
-  } else if(length(key) == 1) {
-    # Change single indices for vectors into double indices
-    if(nrow == 1)
-      key <- Key(1, key$col)
-    else if(ncol == 1)
-      key <- Key(key$row, 1)
-    else
-      stop("Invalid index/slice")
-  } else
-    stop("key cannot be empty")
+
+  nrow <- dim[1]
+  ncol <- dim[2]
+  row <- ku_format_slice(key$row, nrow)
+  col <- ku_format_slice(key$col, ncol)
+
+  if(!is.null(row) && !is.null(col))
+    key <- Key(row = row, col = col)
+  # Change single indices for vectors into double indices
+  else if(is.null(row) && !is.null(col))
+    key <- Key(row = seq_len(nrow), col = col)
+  else if(!is.null(row) && is.null(col))
+    key <- Key(row = row, col = seq_len(ncol))
+  else
+    stop("A key cannot be empty")
   return(key)
 }
 
-ku_slice_mat <- function(mat, key) {
-  if(key$row == "all" && key$col == "all")
-    select_mat <- mat
-  else if(key$row == "all")
-    select_mat <- mat[, key$col]
-  else if(key$col == "all")
-    select_mat <- mat[key$row, ]
+ku_format_slice <- function(key_val, dim) {
+  if(is.null(key_val))
+    return(NULL)
+  orig_key_val <- as.integer(key_val)
+
+  # Return if all zero indices.
+  if(all(orig_key_val == 0))
+    return(orig_key_val)
+
+  # Convert negative indices to positive indices.
+  if(all(orig_key_val >= 0))
+    key_val <- orig_key_val
+  else if(all(orig_key_val <= 0))
+    key_val <- setdiff(seq_len(dim), -orig_key_val)
   else
-    select_mat <- mat[key$row, key$col]
+    stop("Only 0's may be mixed with negative subscripts")
+
+  if(all(key_val >= 0 & key_val <= dim))
+    return(key_val)
+  else
+    stop("Index is out of bounds for axis with size ", dim)
+}
+
+ku_slice_mat <- function(mat, key) {
+  if(is.vector(mat))
+    mat <- matrix(mat, ncol = 1)
+
+  if(is.matrix(key$row) && is.null(key$col))
+    select_mat  <- matrix(mat[key$row], ncol = 1)
+  else if(is.null(key$row) && is.null(key$col))
+    select_mat <- mat
+  else if(is.null(key$row) && !is.null(key$col))
+    select_mat <- mat[, key$col, drop = FALSE]
+  else if(!is.null(key$row) && is.null(key$col))
+    select_mat <- mat[key$row, , drop = FALSE]
+  else
+    select_mat <- mat[key$row, key$col, drop = FALSE]
   select_mat
 }
 
-ku_size <- function(key, shape) {
+ku_dim <- function(key, dim) {
   dims <- c()
 
   for(i in 1:2) {
     idx <- key[[i]]
-    if(idx == "all")
-      size <- shape[i]
+    if(is.null(idx))
+      size <- dim[i]
     else {
-      selection <- (1:shape[i])[idx]
+      selection <- (1:dim[i])[idx]
       size <- length(selection)
     }
     dims <- c(dims, size)

@@ -1,7 +1,7 @@
 //    This file is part of cvxr
 
 #ifdef _R_INTERFACE_
-#include "CVXR_types.h"
+#include "CVXR.h"
 #include "CVXcanon.h"
 
 static const char hexArray[] = { '0', '1', '2', '3', '4',
@@ -42,22 +42,33 @@ std::map<std::string, double>  makeMap(Rcpp::List L) {
 // [[Rcpp::export(.build_matrix_0)]]
 SEXP build_matrix_0(SEXP xp, Rcpp::IntegerVector v) {
   // grab the object as a XPtr (smart pointer)
+#ifdef _R_DEBUG_
+  Rcpp::Rcout << "In Build Matrix 0" <<std::endl;
+#endif
   Rcpp::XPtr<LinOpVector> ptrX(xp);
   std::map<int, int> id_to_col;
+#ifdef _R_DEBUG_
+  Rcpp::Rcout << "Build Matrix 0: v.size() is " << v.size() <<std::endl;
+#endif
   if (v.size() > 0) {
     Rcpp::StringVector s = v.names();
     for (int i = 0; i < s.size(); i++) {
+#ifdef _R_DEBUG_
+      Rcpp::Rcout << "Build_matrix_0 loop: i is " << i<<std::endl;
+      Rcpp::Rcout << "Build_matrix_0 loop: s[i] is " << s[i]<<std::endl;
+      Rcpp::Rcout << "Build_matrix_0 loop: v[i] is " << v[i]<<std::endl;
+#endif
       id_to_col[atoi(s[i])] = v[i];
     }
   }
-#ifdef _R_DEBUG_
-  Rcpp::Rcout << "Before Build Matrix 0" <<std::endl;
-#endif
   //  ProblemData res = build_matrix(ptrX->linvec, id_to_col);
   //  Rcpp::Rcout << "After Build Matrix" <<std::endl;  
   //  Rcpp::XPtr<ProblemData> resPtr(&res, true);
 
   Rcpp::XPtr<ProblemData> resPtr(new ProblemData(), true);
+#ifdef _R_DEBUG_
+  Rcpp::Rcout << "After resPtr" <<std::endl;
+#endif    
   build_matrix_2(ptrX->linvec, id_to_col, resPtr);
 #ifdef _R_DEBUG_
   Rcpp::Rcout << "After constructing external ptr" <<std::endl;

@@ -4,28 +4,32 @@
 \name{Atom-class}
 \alias{Atom-class}
 \alias{Atom}
+\alias{name,Atom-method}
 \alias{validate_args,Atom-method}
-\alias{size,Atom-method}
 \alias{dim,Atom-method}
 \alias{nrow,Atom-method}
 \alias{ncol,Atom-method}
-\alias{is_positive,Atom-method}
-\alias{is_negative,Atom-method}
+\alias{allow_complex,Atom-method}
+\alias{is_nonneg,Atom-method}
+\alias{is_nonpos,Atom-method}
+\alias{is_imag,Atom-method}
+\alias{is_complex,Atom-method}
 \alias{is_convex,Atom-method}
 \alias{is_concave,Atom-method}
+\alias{is_log_log_convex,Atom-method}
+\alias{is_log_log_concave,Atom-method}
 \alias{canonicalize,Atom-method}
 \alias{graph_implementation,Atom-method}
-\alias{variables,Atom-method}
-\alias{parameters,Atom-method}
-\alias{constants,Atom-method}
+\alias{value_impl,Atom-method}
 \alias{value,Atom-method}
 \alias{grad,Atom-method}
 \alias{domain,Atom-method}
+\alias{atoms,Atom-method}
 \title{The Atom class.}
 \usage{
-\S4method{validate_args}{Atom}(object)
+\S4method{name}{Atom}(x)
 
-\S4method{size}{Atom}(object)
+\S4method{validate_args}{Atom}(object)
 
 \S4method{dim}{Atom}(x)
 
@@ -33,37 +37,44 @@
 
 \S4method{ncol}{Atom}(x)
 
-\S4method{is_positive}{Atom}(object)
+\S4method{allow_complex}{Atom}(object)
 
-\S4method{is_negative}{Atom}(object)
+\S4method{is_nonneg}{Atom}(object)
+
+\S4method{is_nonpos}{Atom}(object)
+
+\S4method{is_imag}{Atom}(object)
+
+\S4method{is_complex}{Atom}(object)
 
 \S4method{is_convex}{Atom}(object)
 
 \S4method{is_concave}{Atom}(object)
 
+\S4method{is_log_log_convex}{Atom}(object)
+
+\S4method{is_log_log_concave}{Atom}(object)
+
 \S4method{canonicalize}{Atom}(object)
 
-\S4method{graph_implementation}{Atom}(object, arg_objs, size,
-  data = NA_real_)
+\S4method{graph_implementation}{Atom}(object, arg_objs, dim, data = NA_real_)
 
-\S4method{variables}{Atom}(object)
-
-\S4method{parameters}{Atom}(object)
-
-\S4method{constants}{Atom}(object)
+\S4method{value_impl}{Atom}(object)
 
 \S4method{value}{Atom}(object)
 
 \S4method{grad}{Atom}(object)
 
 \S4method{domain}{Atom}(object)
+
+\S4method{atoms}{Atom}(object)
 }
 \arguments{
 \item{x, object}{An \linkS4class{Atom} object.}
 
 \item{arg_objs}{A list of linear expressions for each argument.}
 
-\item{size}{A vector with two elements representing the size of the resulting expression.}
+\item{dim}{A vector with two elements representing the dimensions of the resulting expression.}
 
 \item{data}{A list of additional data required by the atom.}
 }
@@ -72,9 +83,9 @@ This virtual class represents atomic expressions in CVXR.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{validate_args}: Raises an error if the arguments are invalid.
+\item \code{name}: Returns the string representtation of the function call
 
-\item \code{size}: The \code{c(row, col)} dimensions of the atom.
+\item \code{validate_args}: Raises an error if the arguments are invalid.
 
 \item \code{dim}: The \code{c(row, col)} dimensions of the atom.
 
@@ -82,28 +93,36 @@ This virtual class represents atomic expressions in CVXR.
 
 \item \code{ncol}: The number of columns in the atom.
 
-\item \code{is_positive}: A logical value indicating whether the atom is positive.
+\item \code{allow_complex}: Does the atom handle complex numbers?
 
-\item \code{is_negative}: A logical value indicating whether the atom is negative.
+\item \code{is_nonneg}: A logical value indicating whether the atom is nonnegative.
+
+\item \code{is_nonpos}: A logical value indicating whether the atom is nonpositive.
+
+\item \code{is_imag}: A logical value indicating whether the atom is imaginary.
+
+\item \code{is_complex}: A logical value indicating whether the atom is complex valued.
 
 \item \code{is_convex}: A logical value indicating whether the atom is convex.
 
 \item \code{is_concave}: A logical value indicating whether the atom is concave.
 
+\item \code{is_log_log_convex}: A logical value indicating whether the atom is log-log convex.
+
+\item \code{is_log_log_concave}: A logical value indicating whether the atom is log-log concave.
+
 \item \code{canonicalize}: Represent the atom as an affine objective and conic constraints.
 
 \item \code{graph_implementation}: The graph implementation of the atom.
 
-\item \code{variables}: List of \linkS4class{Variable} objects in the atom.
+\item \code{value_impl}: Returns the value of each of the componets in an Atom. Returns an empty matrix if it's an empty atom
 
-\item \code{parameters}: List of \linkS4class{Parameter} objects in the atom.
-
-\item \code{constants}: List of \linkS4class{Constant} objects in the atom.
-
-\item \code{value}: The value of the atom.
+\item \code{value}: Returns the value of the atom.
 
 \item \code{grad}: The (sub/super)-gradient of the atom with respect to each variable.
 
 \item \code{domain}: A list of constraints describing the closure of the region where the expression is finite.
+
+\item \code{atoms}: Returns a list of the atom types present amongst this atom's arguments
 }}
 

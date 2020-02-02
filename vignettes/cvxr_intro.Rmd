@@ -191,16 +191,16 @@ could not do.
 
 So now suppose that we know, for some extraneous reason, that the sum
 of 
-$\beta_2$ and $\beta_3$ is negative and but all other $\beta$s are
-positive.
+$\beta_2$ and $\beta_3$ is nonpositive and but all other $\beta$s are
+nonnegative.
 
 It is clear that this problem would not fit into any standard
 package. But in `CVXR`, this is easily done by adding a few
 constraints. 
 
-To express the fact that $\beta_2 + \beta_3$ is negative, we construct
-a row matrix with zeros everywhere, except in positions 2 and 3 (for
-$\beta_2$ and $\beta_3$ respectively).
+To express the fact that $\beta_2 + \beta_3$ is nonpositive, we
+construct a row matrix with zeros everywhere, except in positions 2
+and 3 (for $\beta_2$ and $\beta_3$ respectively).
 
 ```{r}
 A <- matrix(c(0, 1, 1, rep(0, 7)), nrow = 1)
@@ -210,24 +210,24 @@ knitr::kable(A)
 
 The sum constraint is nothing but 
 $$
-A\beta < 0
+A\beta <= 0
 $$
 
 which we express in R as
 
 ```{r}
-constraint1 <- A %*% betaHat < 0
+constraint1 <- A %*% betaHat <= 0
 ```
 
 _NOTE_: The above constraint can also be expressed simply as
 
 ```{r, eval = FALSE}
-constraint1 <- betaHat[2] + betaHat[3] < 0
+constraint1 <- betaHat[2] + betaHat[3] <= 0
 ```
 but it is easier working with matrices in general with `CVXR`. 
 
 
-For the positivity for rest of the variables, we construct a $10\times
+For the nonnegativity for rest of the variables, we construct a $10\times
 10$ matrix $A$ to have 1's along the diagonal everywhere except rows 2
 and 3 and zeros everywhere.
 
@@ -245,7 +245,7 @@ $$
 which we express in R as 
 
 ```{r}
-constraint2 <- B %*% betaHat > 0
+constraint2 <- B %*% betaHat >= 0
 ```
 Now we are ready to solve the problem just as before. 
 

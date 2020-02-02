@@ -2,6 +2,28 @@
 #     Scalar functions
 # =========================
 #'
+#' Unity Resolvent
+#'
+#' The unity resolvent of a positive matrix. For an elementwise positive matrix \eqn{X}, this atom represents \eqn{(I - X)^{-1}},
+#' and it enforces the constraint that the spectral radius of \eqn{X} is at most 1.
+#'
+#' This atom is log-log convex.
+#'
+#' @param X An \linkS4class{Expression} or positive square matrix.
+#' @return An \linkS4class{Expression} representing the unity resolvent of the input.
+#' @examples
+#' A <- Variable(2,2, pos = TRUE)
+#' prob <- Problem(Minimize(matrix_trace(A)), list(eye_minus_inv(A) <=1))
+#' result <- solve(prob, gp = TRUE)
+#' result$value
+#' result$getValue(A)
+#' @docType methods
+#' @name eye_minus_inv
+#' @rdname eye_minus_inv
+#' @export
+eye_minus_inv <- EyeMinusInv
+
+#'
 #' Geometric Mean
 #'
 #' The (weighted) geometric mean of vector \eqn{x} with optional powers given by \eqn{p}.
@@ -24,12 +46,14 @@
 #' result$value
 #' result$getValue(x)
 #'
-#' x <- Variable(5)
-#' p <- c(0.07, 0.12, 0.23, 0.19, 0.39)
-#' prob <- Problem(Maximize(geo_mean(x,p)), list(p_norm(x) <= 1))
-#' result <- solve(prob)
-#' result$value
-#' result$getValue(x)
+#' \dontrun{
+#'   x <- Variable(5)
+#'   p <- c(0.07, 0.12, 0.23, 0.19, 0.39)
+#'   prob <- Problem(Maximize(geo_mean(x,p)), list(p_norm(x) <= 1))
+#'   result <- solve(prob)
+#'   result$value
+#'   result$getValue(x)
+#' }
 #' @docType methods
 #' @name geo_mean
 #' @rdname geo_mean
@@ -174,6 +198,7 @@ log_det <- LogDet
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the log-sum-exponential of the input.
 #' @examples
 #' A <- Variable(2,2)
@@ -197,6 +222,7 @@ log_sum_exp <- LogSumExp
 #' @return An \linkS4class{Expression} representing the matrix fraction evaluated at the input.
 #' @examples
 #' \dontrun{
+#' set.seed(192)
 #' m <- 100
 #' n <- 80
 #' r <- 70
@@ -223,7 +249,13 @@ log_sum_exp <- LogSumExp
 #' @name matrix_frac
 #' @rdname matrix_frac
 #' @export
-matrix_frac <- MatrixFrac
+matrix_frac <- function(X, P) {
+  if(is.matrix(P) && (is.vector(X) || ncol(X) == 1)) {
+    invP <- as.matrix(base::solve(P))
+    return(QuadForm(x = X, P = (invP + t(Conj(invP))) / 2.0))
+  } else
+    return(MatrixFrac(X = X, P = P))
+}
 
 #'
 #' Maximum
@@ -232,6 +264,7 @@ matrix_frac <- MatrixFrac
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the maximum of the input.
 #' @examples
 #' x <- Variable(2)
@@ -259,6 +292,7 @@ max_entries <- MaxEntries
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the minimum of the input.
 #' @examples
 #' A <- Variable(2,2)
@@ -308,6 +342,7 @@ mixed_norm <- MixedNorm
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the 1-norm of the input.
 #' @examples
 #' a <- Variable()
@@ -340,6 +375,7 @@ norm1 <- Norm1
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the Euclidean norm of the input.
 #' @examples
 #' a <- Variable()
@@ -379,6 +415,7 @@ norm2 <- Norm2
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the infinity-norm of the input.
 #' @examples
 #' a <- Variable()
@@ -433,6 +470,62 @@ norm_inf <- NormInf
 norm_nuc <- NormNuc
 
 #'
+#' Difference on Restricted Domain
+#'
+#' The difference \eqn{1 - x} with domain \eqn{\{x : 0 < x < 1\}}.
+#'
+#' This atom is log-log concave.
+#'
+#' @param x An \linkS4class{Expression}, vector, or matrix.
+#' @return An \linkS4class{Expression} representing one minus the input restricted to \eqn{(0,1)}.
+#' @examples
+#' x <- Variable(pos = TRUE)
+#' y <- Variable(pos = TRUE)
+#' prob <- Problem(Maximize(one_minus_pos(x*y)), list(x <= 2 * y^2, y >= .2))
+#' result <- solve(prob, gp = TRUE)
+#' result$value
+#' result$getValue(x)
+#' result$getValue(y)
+#'
+#' @docType methods
+#' @name one_minus_pos
+#' @rdname one_minus_pos
+#' @export
+one_minus_pos <- OneMinusPos
+
+#'
+#' Perron-Frobenius Eigenvalue
+#'
+#' The Perron-Frobenius eigenvalue of a positive matrix.
+#'
+#' For an elementwise positive matrix \eqn{X}, this atom represents its spectral radius, i.e., the magnitude of its largest eigenvalue.
+#' Because \eqn{X} is positive, the spectral radius equals its largest eigenvalue, which is guaranteed to be positive.
+#'
+#' This atom is log-log convex.
+#' @param X An \linkS4class{Expression} or positive square matrix.
+#' @return An \linkS4class{Expression} representing the largest eigenvalue of the input.
+#' @examples
+#' n <- 3
+#' X <- Variable(n, n, pos=TRUE)
+#' objective_fn <- pf_eigenvalue(X)
+#' constraints <- list( X[1,1]== 1.0,
+#'                      X[1,3] == 1.9,
+#'                      X[2,2] == .8,
+#'                      X[3,1] == 3.2,
+#'                      X[3,2] == 5.9,
+#'                      X[1, 2] * X[2, 1] * X[2,3] * X[3,3] == 1)
+#' problem <- Problem(Minimize(objective_fn), constraints)
+#' result <- solve(problem, gp=TRUE)
+#' result$value
+#' result$getValue(X)
+#'
+#' @docType methods
+#' @name pf_eigenvalue
+#' @rdname pf_eigenvalue
+#' @export
+pf_eigenvalue <- PfEigenvalue
+
+#'
 #' P-Norm
 #'
 #' The vector p-norm. If given a matrix variable, \code{p_norm} will treat it as a vector and compute the p-norm of the concatenated columns.
@@ -448,8 +541,9 @@ norm_nuc <- NormNuc
 #'
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @param p A number greater than or equal to 1, or equal to positive infinity.
-#' @param max_denom The maximum denominator considered in forming a rational approximation for \eqn{p}.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
+#' @param max_denom (Optional) The maximum denominator considered in forming a rational approximation for \eqn{p}. The default is 1024.
 #' @return An \linkS4class{Expression} representing the p-norm of the input.
 #' @examples
 #' x <- Variable(3)
@@ -463,21 +557,52 @@ norm_nuc <- NormNuc
 #' result$value
 #' result$getValue(x)
 #'
-#' a <- c(1.0, 2, 3)
-#' prob <- Problem(Minimize(p_norm(x,1.6)), list(t(x) %*% a >= 1))
-#' result <- solve(prob)
-#' result$value
-#' result$getValue(x)
+#' \dontrun{
+#'   a <- c(1.0, 2, 3)
+#'   prob <- Problem(Minimize(p_norm(x,1.6)), list(t(x) %*% a >= 1))
+#'   result <- solve(prob)
+#'   result$value
+#'   result$getValue(x)
 #'
-#' prob <- Problem(Minimize(sum(abs(x - a))), list(p_norm(x,-1) >= 0))
-#' result <- solve(prob)
-#' result$value
-#' result$getValue(x)
+#'   prob <- Problem(Minimize(sum(abs(x - a))), list(p_norm(x,-1) >= 0))
+#'   result <- solve(prob)
+#'   result$value
+#'   result$getValue(x)
+#' }
 #' @docType methods
 #' @name p_norm
 #' @rdname p_norm
 #' @export
 p_norm <- Pnorm
+
+#'
+#' Product of Entries
+#'
+#' The product of entries in a vector or matrix.
+#'
+#' This atom is log-log affine, but it is neither convex nor concave.
+#'
+#' @param ... \linkS4class{Expression} objects, vectors, or matrices.
+#' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
+#' @return An \linkS4class{Expression} representing the product of the entries of the input.
+#' @examples
+#'
+#' n <- 2
+#' X <- Variable(n, n, pos=TRUE)
+#' obj <- sum(X)
+#' constraints <- list(prod_entries(X) == 4)
+#' prob <- Problem(Minimize(obj), constraints)
+#' result <- solve(prob, gp=TRUE)
+#' result$value
+#' result$getValue(X)
+#'
+#' @docType methods
+#' @name prod_entries
+#' @aliases prod
+#' @rdname prod_entries
+#' @export
+prod_entries <- ProdEntries
 
 #'
 #' Quadratic Form
@@ -505,7 +630,24 @@ p_norm <- Pnorm
 #' @name quad_form
 #' @rdname quad_form
 #' @export
-quad_form <- QuadForm
+quad_form <- function(x, P) {
+  # x^T P x
+  x <- as.Constant(x)
+  P <- as.Constant(P)
+
+  # Check dimensions.
+  P_dim <- dim(P)
+  if(ndim(P) != 2 || P_dim[1] != P_dim[2] || max(nrow(x), 1) != P_dim[1])
+    stop("Invalid dimensions for arguments.")
+
+  # P cannot be a parameter.
+  if(is_constant(x))
+    Conj(t(x)) %*% P %*% x
+  else if(is_constant(P))
+    QuadForm(x, P)
+  else
+    stop("At least one argument to QuadForm must be constant.")
+}
 
 #'
 #' Quadratic over Linear
@@ -537,6 +679,7 @@ quad_over_lin <- QuadOverLin
 #'
 #' @param expr An \linkS4class{Expression}, vector, or matrix.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the sum of the entries of the input.
 #' @examples
 #' x <- Variable(2)
@@ -566,6 +709,7 @@ sum_entries <- SumEntries
 #' @param k The number of largest values to sum over.
 #' @return An \linkS4class{Expression} representing the sum of the largest \code{k} values of the input.
 #' @examples
+#' set.seed(122)
 #' m <- 300
 #' n <- 9
 #' X <- matrix(stats::rnorm(m*n), nrow = m, ncol = n)
@@ -593,6 +737,7 @@ sum_largest <- SumLargest
 #' @param k The number of smallest values to sum over.
 #' @return An \linkS4class{Expression} representing the sum of the smallest k values of the input.
 #' @examples
+#' set.seed(1323)
 #' m <- 300
 #' n <- 9
 #' X <- matrix(stats::rnorm(m*n), nrow = m, ncol = n)
@@ -620,6 +765,7 @@ sum_smallest <- SumSmallest
 #' @param expr An \linkS4class{Expression}, vector, or matrix.
 #' @return An \linkS4class{Expression} representing the sum of squares of the input.
 #' @examples
+#' set.seed(212)
 #' m <- 30
 #' n <- 20
 #' A <- matrix(stats::rnorm(m*n), nrow = m, ncol = n)
@@ -699,6 +845,18 @@ tv <- TotalVariation
 
 #' @param ... Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.
 #' @param na.rm (Unimplemented) A logical value indicating whether missing values should be removed.
+#' @examples
+#' x <- Variable(2)
+#' val <- matrix(c(-5,-10))
+#' prob <- Problem(Minimize(max_entries(x)), list(x == val))
+#' result <- solve(prob)
+#' result$value
+#'
+#' A <- Variable(2,2)
+#' val <- rbind(c(-5,2), c(-3,1))
+#' prob <- Problem(Minimize(max_entries(A, axis = 1)[2,1]), list(A == val))
+#' result <- solve(prob)
+#' result$value
 #' @docType methods
 #' @rdname max_entries
 #' @method max Expression
@@ -708,17 +866,31 @@ max.Expression <- function(..., na.rm = FALSE) {
     warning("na.rm is unimplemented for Expression objects")
 
   vals <- list(...)
+  if(length(vals) == 0) {
+    warning("no non-missing arguments to max; returning -Inf")
+    return(-Inf)
+  }
+
   is_expr <- sapply(vals, function(v) { is(v, "Expression") })
   max_args <- lapply(vals[is_expr], function(expr) { MaxEntries(expr) })
   if(!all(is_expr)) {
     max_num <- max(sapply(vals[!is_expr], function(v) { max(v, na.rm = na.rm) }))
     max_args <- c(max_args, max_num)
   }
-  .MaxElemwise(args = max_args)
+
+  if(length(max_args) == 1)
+    return(max_args[[1]])
+  .MaxElemwise(atom_args = max_args)
 }
 
 #' @param ... Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.
 #' @param na.rm (Unimplemented) A logical value indicating whether missing values should be removed.
+#' @examples
+#' A <- Variable(2,2)
+#' val <- cbind(c(-5,2), c(-3,1))
+#' prob <- Problem(Maximize(min_entries(A)), list(A == val))
+#' result <- solve(prob)
+#' result$value
 #' @docType methods
 #' @rdname min_entries
 #' @method min Expression
@@ -728,6 +900,11 @@ min.Expression <- function(..., na.rm = FALSE) {
     warning("na.rm is unimplemented for Expression objects")
 
   vals <- list(...)
+  if(length(vals) == 0) {
+    warning("no non-missing arguments to min; returning Inf")
+    return(Inf)
+  }
+
   is_expr <- sapply(vals, function(v) { is(v, "Expression") })
   min_args <- lapply(vals[is_expr], function(expr) { MinEntries(expr) })
   if(!all(is_expr)) {
@@ -735,7 +912,10 @@ min.Expression <- function(..., na.rm = FALSE) {
     min_args <- c(min_args, min_num)
   }
   min_args <- lapply(min_args, function(arg) { -as.Constant(arg) })
-  -.MaxElemwise(args = min_args)
+
+  if(length(min_args) == 1)
+    return(-min_args[[1]])
+  -.MaxElemwise(atom_args = min_args)
 }
 
 #'
@@ -792,6 +972,7 @@ setMethod("norm", signature(x = "Expression", type = "character"), function(x, t
 #' @param x An \linkS4class{Expression} or numeric constant representing a vector or matrix.
 #' @param p The type of norm. May be a number (p-norm), "inf" (infinity-norm), "nuc" (nuclear norm), or "fro" (Frobenius norm). The default is \code{p = 2}.
 #' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.
+#' @param keepdims (Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.
 #' @return An \linkS4class{Expression} representing the norm.
 #' @seealso \link[CVXR]{norm}
 #' @docType methods
@@ -802,6 +983,18 @@ cvxr_norm <- Norm
 
 #' @param ... Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.
 #' @param na.rm (Unimplemented) A logical value indicating whether missing values should be removed.
+#' @examples
+#' x <- Variable(2)
+#' prob <- Problem(Minimize(sum_entries(x)), list(t(x) >= matrix(c(1,2), nrow = 1, ncol = 2)))
+#' result <- solve(prob)
+#' result$value
+#' result$getValue(x)
+#'
+#' C <- Variable(3,2)
+#' prob <- Problem(Maximize(sum_entries(C)), list(C[2:3,] <= 2, C[1,] == 1))
+#' result <- solve(prob)
+#' result$value
+#' result$getValue(C)
 #' @docType methods
 #' @rdname sum_entries
 #' @method sum Expression
@@ -818,6 +1011,35 @@ sum.Expression <- function(..., na.rm = FALSE) {
   else {
     sum_num <- sum(sapply(vals[!is_expr], function(v) { sum(v, na.rm = na.rm) }))
     Reduce("+", sum_expr) + sum_num
+  }
+}
+
+#' @param ... Numeric scalar, vector, matrix, or \linkS4class{Expression} objects.
+#' @param na.rm (Unimplemented) A logical value indicating whether missing values should be removed.
+#' @examples
+#' n <- 2
+#' X <- Variable(n, n, pos=TRUE)
+#' obj <- sum(X)
+#' constraints <- list(prod(X) == 4)
+#' prob <- Problem(Minimize(obj), constraints)
+#' result <- solve(prob, gp=TRUE)
+#' result$value
+#' @docType methods
+#' @rdname prod_entries
+#' @method prod Expression
+#' @export
+prod.Expression <- function(..., na.rm = FALSE) {
+  if(na.rm)
+    warning("na.rm is unimplemented for Expression objects")
+
+  vals <- list(...)
+  is_expr <- sapply(vals, function(v) { is(v, "Expression") })
+  sum_expr <- lapply(vals[is_expr], function(expr) { ProdEntries(expr = expr) })
+  if(all(is_expr))
+    Reduce("*", sum_expr)
+  else {
+    sum_num <- sum(sapply(vals[!is_expr], function(v) { prod(v, na.rm = na.rm) }))
+    Reduce("*", sum_expr) + sum_num
   }
 }
 
@@ -885,6 +1107,7 @@ entr <- Entr
 #' @param M (Optional) A positive scalar value representing the threshold. Defaults to 1.
 #' @return An \linkS4class{Expression} representing the Huber function evaluated at the input.
 #' @examples
+#' set.seed(11)
 #' n <- 10
 #' m <- 450
 #' p <- 0.1    # Fraction of responses with sign flipped
@@ -971,6 +1194,7 @@ kl_div <- KLDiv
 #' @param x An \linkS4class{Expression}, vector, or matrix.
 #' @return An \linkS4class{Expression} representing the logistic function evaluated at the input.
 #' @examples
+#' set.seed(92)
 #' n <- 20
 #' m <- 1000
 #' sigma <- 45
@@ -1043,24 +1267,24 @@ min_elemwise <- MinElemwise
 #'
 #' The elementwise product of two expressions. The first expression must be constant.
 #'
-#' @param lh_const A constant \linkS4class{Expression}, vector, or matrix representing the left-hand value.
+#' @param lh_exp An \linkS4class{Expression}, vector, or matrix representing the left-hand value.
 #' @param rh_exp An \linkS4class{Expression}, vector, or matrix representing the right-hand value.
 #' @return An \linkS4class{Expression} representing the elementwise product of the inputs.
 #' @examples
 #' A <- Variable(2,2)
 #' c <- cbind(c(1,-1), c(2,-2))
-#' expr <- mul_elemwise(c, A)
+#' expr <- multiply(c, A)
 #' obj <- Minimize(norm_inf(expr))
 #' prob <- Problem(obj, list(A == 5))
 #' result <- solve(prob)
 #' result$value
 #' result$getValue(expr)
 #' @docType methods
-#' @name mul_elemwise
+#' @name multiply
 #' @aliases *
-#' @rdname mul_elemwise
+#' @rdname multiply
 #' @export
-mul_elemwise <- MulElemwise
+multiply <- Multiply
 
 #'
 #' Elementwise Negative
@@ -1169,32 +1393,6 @@ power <- Power
 scalene <- Scalene
 
 #'
-#' Square Function
-#'
-#' The elementwise square function. This is equivalent to \code{power(x,2)}.
-#'
-#' @param x An \linkS4class{Expression}, vector, or matrix.
-#' @return An \linkS4class{Expression} representing the square of the input.
-#' @examples
-#' m <- 30
-#' n <- 20
-#' A <- matrix(stats::rnorm(m*n), nrow = m, ncol = n)
-#' b <- matrix(stats::rnorm(m), nrow = m, ncol = 1)
-#'
-#' x <- Variable(n)
-#' obj <- Minimize(sum(square(A %*% x - b)))
-#' constr <- list(0 <= x, x <= 1)
-#' prob <- Problem(obj, constr)
-#' result <- solve(prob)
-#' result$value
-#' result$getValue(x)
-#' @docType methods
-#' @name square
-#' @rdname square
-#' @export
-square <- Square
-
-#'
 #' Absolute Value
 #'
 #' The elementwise absolute value.
@@ -1277,7 +1475,12 @@ setMethod("exp", "Expression", function(x) { Exp(x = x) })
 #' @aliases log log10 log2 log1p
 #' @rdname log
 #' @export
-setMethod("log", "Expression", function(x, base = exp(1)) { Log(x = x)/log(base) })
+setMethod("log", "Expression", function(x, base = base::exp(1)) {
+  if(base == base::exp(1))
+    Log(x = x)
+  else
+    Log(x = x)/base::log(base)
+})
 
 #' @docType methods
 #' @rdname log
@@ -1311,25 +1514,29 @@ log1p <- Log1p
 #' @aliases sqrt
 #' @rdname sqrt
 #' @export
-setMethod("sqrt", "Expression", function(x) { Sqrt(x = x) })
+setMethod("sqrt", "Expression", function(x) { Power(x = x, p = 0.5) })
+
+#'
+#' Square
+#'
+#' The elementwise square.
+#'
+#' @param x An \linkS4class{Expression}.
+#' @return An \linkS4class{Expression} representing the square of the input.
+#' A <- Variable(2,2)
+#' val <- cbind(c(2,4), c(16,1))
+#' prob <- Problem(Minimize(square(A)[1,2]), list(A == val))
+#' result <- solve(prob)
+#' result$value
+#' @docType methods
+#' @aliases square
+#' @rdname square
+#' @export
+setMethod("square", "Expression", function(x) { Power(x = x, p = 2) })
 
 # =========================
 # Matrix/vector operations
 # =========================
-#'
-#' Affine Product
-#'
-#' The product of two affine expressions.
-#'
-#' @param x An \linkS4class{Expression} or numeric constant representing the left-hand value.
-#' @param y An \linkS4class{Expression} or numeric constant representing the right-hand value.
-#' @return An \linkS4class{Expression} representing the product of \code{x} and \code{y}.
-#' @docType methods
-#' @name affine_prod
-#' @rdname affine_prod
-#' @export
-affine_prod <- AffineProd
-
 #'
 #' Block Matrix
 #'
@@ -1360,6 +1567,7 @@ bmat <- Bmat
 #' @param rh_exp An \linkS4class{Expression} or vector representing the right-hand value.
 #' @return An \linkS4class{Expression} representing the convolution of the input.
 #' @examples
+#' set.seed(129)
 #' x <- Variable(5)
 #' h <- matrix(stats::rnorm(2), nrow = 2, ncol = 1)
 #' prob <- Problem(Minimize(sum(conv(h, x))))
@@ -1422,14 +1630,13 @@ hstack <- HStack
 #' This function vectorizes an expression, then unvectorizes it into a new shape. Entries are stored in column-major order.
 #'
 #' @param expr An \linkS4class{Expression}, vector, or matrix.
-#' @param rows The new number of rows.
-#' @param cols The new number of columns.
+#' @param new_dim The new dimensions.
 #' @return An \linkS4class{Expression} representing the reshaped input.
 #' @examples
 #' x <- Variable(4)
 #' mat <- cbind(c(1,-1), c(2,-2))
 #' vec <- matrix(1:4)
-#' expr <- reshape_expr(x,2,2)
+#' expr <- reshape_expr(x,c(2,2))
 #' obj <- Minimize(sum(mat %*% expr))
 #' prob <- Problem(obj, list(x == vec))
 #' result <- solve(prob)
@@ -1437,17 +1644,17 @@ hstack <- HStack
 #'
 #' A <- Variable(2,2)
 #' c <- 1:4
-#' expr <- reshape_expr(A,4,1)
+#' expr <- reshape_expr(A,c(4,1))
 #' obj <- Minimize(t(expr) %*% c)
 #' constraints <- list(A == cbind(c(-1,-2), c(3,4)))
 #' prob <- Problem(obj, constraints)
 #' result <- solve(prob)
 #' result$value
 #' result$getValue(expr)
-#' result$getValue(reshape_expr(expr,2,2))
+#' result$getValue(reshape_expr(expr,c(2,2)))
 #'
 #' C <- Variable(3,2)
-#' expr <- reshape_expr(C,2,3)
+#' expr <- reshape_expr(C,c(2,3))
 #' mat <- rbind(c(1,-1), c(2,-2))
 #' C_mat <- rbind(c(1,4), c(2,5), c(3,6))
 #' obj <- Minimize(sum(mat %*% expr))
@@ -1458,14 +1665,14 @@ hstack <- HStack
 #'
 #' a <- Variable()
 #' c <- cbind(c(1,-1), c(2,-2))
-#' expr <- reshape_expr(c * a,1,4)
+#' expr <- reshape_expr(c * a,c(1,4))
 #' obj <- Minimize(expr %*% (1:4))
 #' prob <- Problem(obj, list(a == 2))
 #' result <- solve(prob)
 #' result$value
 #' result$getValue(expr)
 #'
-#' expr <- reshape_expr(c * a,4,1)
+#' expr <- reshape_expr(c * a,c(4,1))
 #' obj <- Minimize(t(expr) %*% (1:4))
 #' prob <- Problem(obj, list(a == 2))
 #' result <- solve(prob)
@@ -1612,6 +1819,36 @@ cumsum_axis <- CumSum
 setMethod("cumsum", signature(x = "Expression"), function(x) { CumSum(expr = Vec(x)) })
 
 #'
+#' Cumulative Maximum
+#'
+#' The cumulative maximum, \eqn{\max_{i=1,\ldots,k} x_i} for \eqn{k=1,\ldots,n}.
+#' When calling \code{cummax}, matrices are automatically flattened into column-major order before the max is taken.
+#'
+#' @param x,expr An \linkS4class{Expression}, vector, or matrix.
+#' @param axis (Optional) The dimension across which to apply the function: \code{1} indicates rows, and \code{2} indicates columns. The default is \code{2}.
+#' @examples
+#' val <- cbind(c(1,2), c(3,4))
+#' value(cummax(Constant(val)))
+#' value(cummax_axis(Constant(val)))
+#'
+#' x <- Variable(2,2)
+#' prob <- Problem(Minimize(cummax(x)[4]), list(x == val))
+#' result <- solve(prob)
+#' result$value
+#' result$getValue(cummax(x))
+#' @docType methods
+#' @name cummax_axis
+#' @aliases cummax_axis cummax
+#' @rdname cummax_axis
+#' @export
+cummax_axis <- CumMax
+
+#' @docType methods
+#' @rdname cummax_axis
+#' @export
+setMethod("cummax", signature(x = "Expression"), function(x) { CumMax(expr = Vec(x)) })
+
+#'
 #' Matrix Diagonal
 #'
 #' Extracts the diagonal from a matrix or makes a vector into a diagonal matrix.
@@ -1622,7 +1859,7 @@ setMethod("cumsum", signature(x = "Expression"), function(x) { CumSum(expr = Vec
 #' @examples
 #' C <- Variable(3,3)
 #' obj <- Maximize(C[1,3])
-#' constraints <- list(diag(C) == 1, C[1,2] == 0.6, C[2,3] == -0.3, C == Semidef(3))
+#' constraints <- list(diag(C) == 1, C[1,2] == 0.6, C[2,3] == -0.3, C == Variable(3,3, PSD = TRUE))
 #' prob <- Problem(obj, constraints)
 #' result <- solve(prob)
 #' result$value
@@ -1712,7 +1949,6 @@ setMethod("diff", "Expression", function(x, lag = 1, differences = 1, ...) { Dif
 #' result <- solve(prob)
 #' result$value
 #' result$getValue(kronecker(X,Y))
-#' @docType methods
 #' @aliases kronecker %x%
 #' @rdname kronecker
 #' @export
@@ -1722,7 +1958,6 @@ setMethod("kronecker", signature(X = "Expression", Y = "ANY"), function(X, Y, FU
   Kron(X, Y)
 })
 
-#' @docType methods
 #' @rdname kronecker
 #' @export
 setMethod("kronecker", signature(X = "ANY", Y = "Expression"), function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
@@ -1731,12 +1966,33 @@ setMethod("kronecker", signature(X = "ANY", Y = "Expression"), function(X, Y, FU
   Kron(X, Y)
 })
 
-#' @docType methods
-#' @rdname kronecker
-#' @export
-setMethod("%x%", signature(X = "Expression", Y = "ANY"), function(X, Y) { Kron(lh_exp = X, rh_exp = Y) })
+## #' @rdname kronecker
+## #' @export
+## setMethod("%x%", signature(X = "Expression", Y = "ANY"), function(X, Y) { Kron(lh_exp = X, rh_exp = Y) })
 
-#' @docType methods
-#' @rdname kronecker
+## #' @rdname kronecker
+## #' @export
+## setMethod("%x%", signature(X = "ANY", Y = "Expression"), function(X, Y) { Kron(lh_exp = X, rh_exp = Y) })
+
+
+#'
+#' Complex Numbers
+#'
+#' Basic atoms that support complex arithmetic.
+#'
+#' @param z An \linkS4class{Expression} object.
+#' @return An \linkS4class{Expression} object that represents the real, imaginary, or complex conjugate.
+#' @name complex-atoms
+NULL
+
+#' @rdname complex-atoms
 #' @export
-setMethod("%x%", signature(X = "ANY", Y = "Expression"), function(X, Y) { Kron(lh_exp = X, rh_exp = Y) })
+setMethod("Re", "Expression", function(z) { Real(z) })
+
+#' @rdname complex-atoms
+#' @export
+setMethod("Im", "Expression", function(z) { Imag(z) })
+
+#' @rdname complex-atoms
+#' @export
+setMethod("Conj", "Expression", function(z) { if(is_real(z)) z else Conjugate(z) })

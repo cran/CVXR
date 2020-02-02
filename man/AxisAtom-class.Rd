@@ -4,30 +4,44 @@
 \name{AxisAtom-class}
 \alias{AxisAtom-class}
 \alias{AxisAtom}
-\alias{size_from_args,AxisAtom-method}
+\alias{dim_from_args,AxisAtom-method}
 \alias{get_data,AxisAtom-method}
 \alias{validate_args,AxisAtom-method}
+\alias{.axis_grad,AxisAtom-method}
+\alias{.column_grad,AxisAtom-method}
 \title{The AxisAtom class.}
 \usage{
-\S4method{size_from_args}{AxisAtom}(object)
+\S4method{dim_from_args}{AxisAtom}(object)
 
 \S4method{get_data}{AxisAtom}(object)
 
 \S4method{validate_args}{AxisAtom}(object)
+
+\S4method{.axis_grad}{AxisAtom}(object, values)
+
+\S4method{.column_grad}{AxisAtom}(object, value)
 }
 \arguments{
 \item{object}{An \linkS4class{Atom} object.}
+
+\item{values}{A list of numeric values for the arguments}
+
+\item{value}{A numeric value}
 }
 \description{
 This virtual class represents atomic expressions that can be applied along an axis in CVXR.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{size_from_args}: The size of the atom deteremined from its arguments.
+\item \code{dim_from_args}: The dimensions of the atom determined from its arguments.
 
-\item \code{get_data}: A list containing \code{axis}.
+\item \code{get_data}: A list containing \code{axis} and \code{keepdims}.
 
-\item \code{validate_args}: Check that the new shape has the same number of entries as the old.
+\item \code{validate_args}: Check that the new dimensions have the same number of entries as the old.
+
+\item \code{.axis_grad}: Gives the (sub/super)gradient of the atom w.r.t. each variable
+
+\item \code{.column_grad}: Gives the (sub/super)gradient of the atom w.r.t. each column variable
 }}
 
 \section{Slots}{
@@ -36,5 +50,7 @@ This virtual class represents atomic expressions that can be applied along an ax
 \item{\code{expr}}{A numeric element, data.frame, matrix, vector, or Expression.}
 
 \item{\code{axis}}{(Optional) The dimension across which to apply the function: \code{1} indicates rows, \code{2} indicates columns, and \code{NA} indicates rows and columns. The default is \code{NA}.}
+
+\item{\code{keepdims}}{(Optional) Should dimensions be maintained when applying the atom along an axis? If \code{FALSE}, result will be collapsed into an \eqn{n x 1} column vector. The default is \code{FALSE}.}
 }}
 
