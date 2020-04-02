@@ -1,7 +1,7 @@
 Package: CVXR
 Type: Package
 Title: Disciplined Convex Optimization
-Version: 1.0
+Version: 1.0-1
 VignetteBuilder: knitr
 Authors@R: c(
            person("Anqi", "Fu",
@@ -26,7 +26,8 @@ Authors@R: c(
                   role=c("ctb"),
                   email = "prosenfield@farmersbusinessnetwork.com")
            )
-URL: https://cvxr.rbind.io, https://www.cvxgrp.org/CVXR/
+URL: https://github.com/cvxgrp/CVXR, https://cvxr.rbind.io,
+        https://www.cvxgrp.org/CVXR/
 BugReports: https://github.com/cvxgrp/CVXR/issues
 Description: An object-oriented modeling language for disciplined convex
     programming (DCP). It allows the user to formulate convex optimization problems
@@ -37,7 +38,7 @@ Depends: R (>= 3.4.0)
 Imports: methods, R6, Matrix, Rcpp (>= 0.12.12), bit64, gmp, Rmpfr,
         ECOSolveR (>= 0.5.3), scs (>= 1.3), stats, osqp
 Suggests: knitr, rmarkdown, testthat, nnls, Rglpk, slam, Rmosek,
-        gurobi, Rcplex, rcbc
+        gurobi, Rcplex, rcbc, covr
 LinkingTo: Rcpp, RcppEigen
 License: Apache License 2.0 | file LICENSE
 LazyData: true
@@ -51,10 +52,10 @@ Collate: 'CVXR.R' 'data.R' 'globals.R' 'generics.R' 'interface.R'
         'transforms.R' 'exports.R' 'rcppUtils.R' 'R6List.R'
         'ProblemData-R6.R' 'LinOp-R6.R' 'LinOpVector-R6.R'
         'RcppExports.R' 'CVXcanon-R6.R' 'Deque.R' 'canonInterface.R'
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2020-01-31 23:40:33 UTC; naras
+Packaged: 2020-04-01 17:03:46 UTC; naras
 Author: Anqi Fu [aut, cre],
   Balasubramanian Narasimhan [aut],
   David W Kang [aut],
@@ -64,4 +65,4 @@ Author: Anqi Fu [aut, cre],
   Paul Kunsberg Rosenfield [ctb]
 Maintainer: Anqi Fu <anqif@stanford.edu>
 Repository: CRAN
-Date/Publication: 2020-02-02 11:30:02 UTC
+Date/Publication: 2020-04-02 12:10:06 UTC
