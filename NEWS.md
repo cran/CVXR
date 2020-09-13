@@ -1,3 +1,14 @@
+# CVXR 1.0-6-1.0-3
+
+* Conforming to CRAN suggestions on non-CRAN packages, but no actual
+  changes.
+
+# CVXR 1.0-2
+
+* Added exponential cone support for `MOSEK` and uncommented
+  associated test.
+* Added JSS publication DOI.
+
 # CVXR 1.0-1
 
 * Many small fixes to solver interfaces
@@ -5,7 +16,6 @@
 * Warm start for `OSQP` and updates to solver cache
 * Solver parameter defaults explicit now
 * New tests added for solver combinations
-
 
 # CVXR 1.0
 
@@ -40,7 +50,7 @@ programming, MOSEK and GUROBI examples.
 * Added `GLPK` via [`Rglpk`](https://cran.r-project.org/package=Rglpk)
 * Added `MOSEK` 
 * Added `GUROBI`
-* Bug fix: [issue #25](https://github.com/anqif/CVXR/issues/25). 
+* Bug fix: [issue #25](https://github.com/cvxgrp/CVXR/issues/25). 
   All CVXR expressions retain dimensions. Culprit was `drop =
   FALSE` (in function `Index.get_special_slice`) as suspected.  
   
@@ -48,12 +58,12 @@ programming, MOSEK and GUROBI examples.
 
 * Added a note that CVXR can probably be compiled from source for
   earlier versions of R. This is [issue
-  #24](https://github.com/anqif/CVXR/issues/24)
+  #24](https://github.com/cvxgrp/CVXR/issues/24)
 
 * Using [pkgdown](https://pkgdown.r-lib.org). This also addresses
-  [issue #23](https://github.com/anqif/CVXR/issues/23)
+  [issue #23](https://github.com/cvxgrp/CVXR/issues/23)
 
-* Bug fix: [issue #28](https://github.com/anqif/CVXR/issues/28)
+* Bug fix: [issue #28](https://github.com/cvxgrp/CVXR/issues/28)
   Function `intf_sign` (`interface.R`) was unnecessarily using a
   tolerance parameter, now eliminated.
   

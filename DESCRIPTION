@@ -1,7 +1,7 @@
 Package: CVXR
 Type: Package
 Title: Disciplined Convex Optimization
-Version: 1.0-1
+Version: 1.0-8
 VignetteBuilder: knitr
 Authors@R: c(
            person("Anqi", "Fu",
@@ -26,19 +26,22 @@ Authors@R: c(
                   role=c("ctb"),
                   email = "prosenfield@farmersbusinessnetwork.com")
            )
-URL: https://github.com/cvxgrp/CVXR, https://cvxr.rbind.io,
-        https://www.cvxgrp.org/CVXR/
+URL: https://cvxr.rbind.io, https://www.cvxgrp.org/CVXR/
 BugReports: https://github.com/cvxgrp/CVXR/issues
-Description: An object-oriented modeling language for disciplined convex
-    programming (DCP). It allows the user to formulate convex optimization problems
-    in a natural way following mathematical convention and DCP rules. The system
-    analyzes the problem, verifies its convexity, converts it into a canonical form,
-    and hands it off to an appropriate solver to obtain the solution.
+Description: An object-oriented modeling language for disciplined
+    convex programming (DCP) as described in Fu, Narasimhan, and Boyd
+    (2020, <doi:10.18637/jss.v094.i14>). It allows the user to
+    formulate convex optimization problems in a natural way following
+    mathematical convention and DCP rules. The system analyzes the
+    problem, verifies its convexity, converts it into a canonical
+    form, and hands it off to an appropriate solver to obtain the
+    solution. Interfaces to solvers on CRAN and elsewhere are
+    provided, both commercial and open source.
+Additional_repositories: https://bnaras.github.io/drat
 Depends: R (>= 3.4.0)
 Imports: methods, R6, Matrix, Rcpp (>= 0.12.12), bit64, gmp, Rmpfr,
         ECOSolveR (>= 0.5.3), scs (>= 1.3), stats, osqp
-Suggests: knitr, rmarkdown, testthat, nnls, Rglpk, slam, Rmosek,
-        gurobi, Rcplex, rcbc, covr
+Suggests: knitr, rmarkdown, testthat, nnls, slam, covr
 LinkingTo: Rcpp, RcppEigen
 License: Apache License 2.0 | file LICENSE
 LazyData: true
@@ -52,10 +55,11 @@ Collate: 'CVXR.R' 'data.R' 'globals.R' 'generics.R' 'interface.R'
         'transforms.R' 'exports.R' 'rcppUtils.R' 'R6List.R'
         'ProblemData-R6.R' 'LinOp-R6.R' 'LinOpVector-R6.R'
         'RcppExports.R' 'CVXcanon-R6.R' 'Deque.R' 'canonInterface.R'
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8
+Enhances: Rcplex, gurobi, rcbc, cccp, Rmosek, Rglpk
 NeedsCompilation: yes
-Packaged: 2020-04-01 17:03:46 UTC; naras
+Packaged: 2020-09-12 17:02:07 UTC; naras
 Author: Anqi Fu [aut, cre],
   Balasubramanian Narasimhan [aut],
   David W Kang [aut],
@@ -65,4 +69,4 @@ Author: Anqi Fu [aut, cre],
   Paul Kunsberg Rosenfield [ctb]
 Maintainer: Anqi Fu <anqif@stanford.edu>
 Repository: CRAN
-Date/Publication: 2020-04-02 12:10:06 UTC
+Date/Publication: 2020-09-13 15:20:11 UTC
