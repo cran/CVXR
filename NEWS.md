@@ -1,4 +1,8 @@
-# CVXR 1.0-6-1.0-3
+# CVXR 1.0-9
+
+* Better typesetting for Power class documentation (Issue #86)
+
+# CVXR 1.0-8 to 1.0-3
 
 * Conforming to CRAN suggestions on non-CRAN packages, but no actual
   changes.

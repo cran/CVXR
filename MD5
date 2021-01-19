@@ -1,7 +1,7 @@
-4e948bd65ff60413f64f4523f6aba05e *DESCRIPTION
+ff0c01be87658dc628d641fd0dc02e7c *DESCRIPTION
 3b83ef96387f14655fc854ddc3c6bd57 *LICENSE
 8ac20f64f64b3510933cd03cf4f87b01 *NAMESPACE
-2cbdf2dc40805af8b2a1831be57539bc *NEWS.md
+933a43e76b6556876e2cf051758c43d6 *NEWS.md
 a10c854d9621d4ebd9719fe06de6af92 *R/CVXR.R
 d79279b892569fa944ff1a8b8d3fa8bb *R/CVXcanon-R6.R
 7d729e9a5af3bc0292823e7f214e4198 *R/Deque.R
@@ -16,13 +16,13 @@ c9521b26e894951783b788f969e7f18e *R/atoms.R
 f7fbaac510865c660cbfe437dcc7645f *R/canonical.R
 2225df2db43ffc3df553503ec6496dc2 *R/coeff_extractor.R
 a5b35f5679a52a8fcbe862ea3ad61710 *R/complex2real.R
-9ada969c8246c3ddd06962defadcc49b *R/conic_solvers.R
+c0d84840fb472f2500c0d09a178d538a *R/conic_solvers.R
 5be5e6df2d9a4d07f27265306cfbfce9 *R/constant.R
 fb4d0795c8ed65bcc8ec5daf51bb4ed3 *R/constraints.R
 85d439a032d03688d53386ab9fa6edb5 *R/data.R
 b4f284569ab73a5a96ec5402f0dd141a *R/dcp2cone.R
 d050b60cf859084a3e7284e431e710f2 *R/dgp2dcp.R
-10170d415de1bab008511cd07dc1d4f1 *R/elementwise.R
+bf11113a0f94c91852b020faa993be52 *R/elementwise.R
 e57a7a1c66f98025ce2cd9a72d471104 *R/eliminate_pwl.R
 bf613fb7392ed3840e40301abaa21525 *R/exports.R
 902f123215ff5d9fe4185fb75f97c4cc *R/expressions.R
@@ -41,7 +41,7 @@ d37dd0dc2d0c19bd891433714eb41f33 *R/solver_utilities.R
 487f8a9033726296e0d461faf4e77d8a *R/utilities.R
 22c03bb158487e22f9b39add29269f1e *R/variable.R
 7de7be28457be0e43e3841f0d5155586 *README.md
-ac59aadf28ea889b2536ab955d5cdd86 *build/vignette.rds
+2c419e247359db91c1c6217bb8ec18da *build/vignette.rds
 2ac31d1cb9e554b9f439248e4439fad5 *cleanup
 bbb79a66ee2687f69a8d876989cd6ab9 *data/cdiac.rda
 3f3f6920c7f0a6b2e44b15263f7d5454 *data/dspop.rda
@@ -57,9 +57,9 @@ db1a5f4df0e9abe83dffd896213ae7f3 *demo/dirstd.R
 3cb85bcfc3404d09da25e62c23455524 *inst/CITATION
 23378e1c7677d931bec06c0f201a196e *inst/doc/cvxr_intro.R
 71735e0b5bdc05fc6d625b2bd26d2be5 *inst/doc/cvxr_intro.Rmd
-e206994ebc128b46d2634d202df4ceb3 *inst/doc/cvxr_intro.html
+dab92c0fa51e326eb75913e4e8dcdbd1 *inst/doc/cvxr_intro.html
 49b1660145838beaf470c20fdf2d9ad7 *inst/doc/version1.Rmd
-13de159e493ca1dd65dff7f188a9fed5 *inst/doc/version1.html
+7d67d969e27779a486d7b57fd6a8b787 *inst/doc/version1.html
 e86505048899ac9f95deb76d699efc9e *inst/extdata/snp500.txt
 13e52affbdfbbef53b5ef99a922bd12e *inst/include/CVXR.h
 17ee461252ff5e4a0d19dc295d22a784 *inst/include/LinOp.h
@@ -252,7 +252,7 @@ bbc6003c4435ea4e646d3f090badd88b *man/Objective-arith.Rd
 f5551a6eb81596b890c2bd320eb11cf4 *man/PfEigenvalue-class.Rd
 9b31965fa7554be3e526705ef3a9fd9d *man/Pnorm-class.Rd
 f4bf9437d233eb8e3e8709e4f0b02275 *man/Pos-int.Rd
-8210f43624a7a7b20dc2a8a41e6088d3 *man/Power-class.Rd
+fc22497e146976845b5fb8f37abbc1a2 *man/Power-class.Rd
 73ed9470cd6de61eb30d051babf52267 *man/Problem-arith.Rd
 5d10577d0456f97efb30faef8ed795ad *man/Problem-class.Rd
 714c5fbab3a93b2eb1a54ff1590dd6f5 *man/ProdEntries-class.Rd
@@ -491,7 +491,7 @@ c0872cebe55796812a554f577b0c76f3 *tests/group05.R
 b2cc735b52ae2ef776050cb7840672b1 *tests/manual/test-benchmarks.R
 c3cbbfef1abcd94df3f65f653ab288ab *tests/manual/test-examples.R
 1256ff6322662448ffeb56cc5b44b148 *tests/manual/test-vignette.R
-bacd80bd0599760c306b44487d7ae268 *tests/testthat/test-g00-constant_atoms.R
+41ad79aaac48dee1d28ba0350b0324bf *tests/testthat/test-g00-constant_atoms.R
 ddf68e1babe72b935513a6aa0edc6c61 *tests/testthat/test-g01-atoms.R
 29281ff37c2898d749a78d2f0cbe87f9 *tests/testthat/test-g01-complex.R
 7c9b6a4551b6cd13fcedf6ea4edbb4f9 *tests/testthat/test-g01-constraints.R
