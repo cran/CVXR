@@ -1,12 +1,12 @@
 Package: CVXR
 Type: Package
 Title: Disciplined Convex Optimization
-Version: 1.0-9
+Version: 1.0-10
 VignetteBuilder: knitr
 Authors@R: c(
            person("Anqi", "Fu",
                   role=c("aut", "cre"),
-                   email = "anqif@stanford.edu"),
+                   email = "anqif@alumni.stanford.edu"),
            person("Balasubramanian", "Narasimhan",
                   role=c("aut"),
                    email = "naras@stat.stanford.edu"),
@@ -40,7 +40,7 @@ Description: An object-oriented modeling language for disciplined
 Additional_repositories: https://bnaras.github.io/drat
 Depends: R (>= 3.4.0)
 Imports: methods, R6, Matrix, Rcpp (>= 0.12.12), bit64, gmp, Rmpfr,
-        ECOSolveR (>= 0.5.4), scs (>= 1.3), stats, osqp
+        ECOSolveR (>= 0.5.4), scs (>= 3.0), stats, osqp
 Suggests: knitr, rmarkdown, testthat, nnls, slam, covr
 LinkingTo: Rcpp, RcppEigen
 License: Apache License 2.0 | file LICENSE
@@ -55,11 +55,11 @@ Collate: 'CVXR.R' 'data.R' 'globals.R' 'generics.R' 'interface.R'
         'transforms.R' 'exports.R' 'rcppUtils.R' 'R6List.R'
         'ProblemData-R6.R' 'LinOp-R6.R' 'LinOpVector-R6.R'
         'RcppExports.R' 'CVXcanon-R6.R' 'Deque.R' 'canonInterface.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
 Enhances: Rcplex, gurobi, rcbc, cccp, Rmosek, Rglpk
 NeedsCompilation: yes
-Packaged: 2021-01-14 02:42:48 UTC; naras
+Packaged: 2021-11-09 15:02:45 UTC; naras
 Author: Anqi Fu [aut, cre],
   Balasubramanian Narasimhan [aut],
   David W Kang [aut],
@@ -67,6 +67,6 @@ Author: Anqi Fu [aut, cre],
   John Miller [aut],
   Stephen Boyd [ctb],
   Paul Kunsberg Rosenfield [ctb]
-Maintainer: Anqi Fu <anqif@stanford.edu>
+Maintainer: Anqi Fu <anqif@alumni.stanford.edu>
 Repository: CRAN
-Date/Publication: 2021-01-19 07:20:08 UTC
+Date/Publication: 2021-11-10 06:00:11 UTC
