@@ -1,7 +1,7 @@
 Package: CVXR
 Type: Package
 Title: Disciplined Convex Optimization
-Version: 1.0-10
+Version: 1.0-11
 VignetteBuilder: knitr
 Authors@R: c(
            person("Anqi", "Fu",
@@ -55,11 +55,11 @@ Collate: 'CVXR.R' 'data.R' 'globals.R' 'generics.R' 'interface.R'
         'transforms.R' 'exports.R' 'rcppUtils.R' 'R6List.R'
         'ProblemData-R6.R' 'LinOp-R6.R' 'LinOpVector-R6.R'
         'RcppExports.R' 'CVXcanon-R6.R' 'Deque.R' 'canonInterface.R'
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Encoding: UTF-8
 Enhances: Rcplex, gurobi, rcbc, cccp, Rmosek, Rglpk
 NeedsCompilation: yes
-Packaged: 2021-11-09 15:02:45 UTC; naras
+Packaged: 2022-10-30 14:46:57 UTC; naras
 Author: Anqi Fu [aut, cre],
   Balasubramanian Narasimhan [aut],
   David W Kang [aut],
@@ -69,4 +69,4 @@ Author: Anqi Fu [aut, cre],
   Paul Kunsberg Rosenfield [ctb]
 Maintainer: Anqi Fu <anqif@alumni.stanford.edu>
 Repository: CRAN
-Date/Publication: 2021-11-10 06:00:11 UTC
+Date/Publication: 2022-10-30 21:32:47 UTC

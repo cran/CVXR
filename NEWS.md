@@ -1,3 +1,9 @@
+# CVXR 1.0-11
+
+* Being more careful about coercing to `dgCMatrix`
+  via `(as(as(<matrix>, "CsparseMatrix"), "generalMatrix"))`
+* Modify all class inheritance checks to use `inherits()`
+
 # CVXR 1.0-10
 
 * Now requiring the updated scs 3.0 as an import
@@ -90,8 +96,3 @@ programming, MOSEK and GUROBI examples.
 # CVXR 0.94-4
 
 * First CRAN release 2017-11-20. 
-
-# CVXR pre-0.94-4
-
-* Several wrong turns and much hand-wringing. Complete rewrite in
-  preparation for release.
