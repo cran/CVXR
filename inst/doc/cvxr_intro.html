@@ -11,7 +11,7 @@
 
 <meta name="author" content="Anqi Fu, Balasubramanian Narasimhan and Stephen Boyd" />
 
-<meta name="date" content="2022-10-30" />
+<meta name="date" content="2024-01-31" />
 
 <title>Disciplined Convex Optimization in R</title>
 
@@ -258,6 +258,7 @@ if (window.hljs) {
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
+margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -375,7 +376,7 @@ display: none;
 <h1 class="title toc-ignore">Disciplined Convex Optimization in R</h1>
 <h4 class="author">Anqi Fu, Balasubramanian Narasimhan and Stephen
 Boyd</h4>
-<h4 class="date">2022-10-30</h4>
+<h4 class="date">2024-01-31</h4>
 
 </div>
 
@@ -793,8 +794,10 @@ as</p>
 <pre class="r"><code>constraint1 &lt;- betaHat[2] + betaHat[3] &lt;= 0</code></pre>
 <p>but it is easier working with matrices in general with
 <code>CVXR</code>.</p>
-<p>For the nonnegativity for rest of the variables, we construct a <span class="math inline">\(10\times 10\)</span> matrix <span class="math inline">\(A\)</span> to have 1’s along the diagonal
-everywhere except rows 2 and 3 and zeros everywhere.</p>
+<p>For the nonnegativity for rest of the variables, we construct a <span class="math inline">\(10\times
+10\)</span> matrix <span class="math inline">\(A\)</span> to have 1’s
+along the diagonal everywhere except rows 2 and 3 and zeros
+everywhere.</p>
 <pre class="r"><code>B &lt;- diag(c(1, 0, 0, rep(1, 7)))
 colnames(B) &lt;- rownames(B) &lt;- paste0(&quot;$\\beta_{&quot;, 1:p, &quot;}$&quot;)
     knitr::kable(B)</code></pre>
@@ -1036,7 +1039,7 @@ variability.</p>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-fu:naras:boyd:2017" class="csl-entry">
 Fu, Anqi, Balasubramanian Narasimhan, and Stephen Boyd. 2017.
 <span>“CVXR: An r Package for Disciplined Convex Optimization.”</span>

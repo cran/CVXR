@@ -246,8 +246,8 @@ setMethod(".grad", "Exp", function(object, values) {
 #'
 #' The Huber class.
 #'
-#' This class represents the elementwise Huber function, \eqn{Huber(x, M) = }
-#' \itemize{
+#' This class represents the elementwise Huber function, \eqn{Huber(x, M = 1)}
+#' \describe{
 #'   \item{\eqn{2M|x|-M^2}}{for \eqn{|x| \geq |M|}}
 #'    \item{\eqn{|x|^2}}{for \eqn{|x| \leq |M|.}}
 #'  }
@@ -780,19 +780,19 @@ Pos <- function(x) { MaxElemwise(x, 0) }
 #' For \eqn{p = 2,4,8,...}, \eqn{f(x) = |x|^p}, convex, signed monotonicity, positive.
 #'
 #' For \eqn{p < 0} and \eqn{f(x) = }
-#' \itemize{
+#' \describe{
 #'   \item{\eqn{x^p}}{ for \eqn{x > 0}}
 #'   \item{\eqn{+\infty}}{\eqn{x \leq 0}}
 #' }, this function is convex, decreasing, and positive.
 #'
 #' For \eqn{0 < p < 1} and \eqn{f(x) =}
-#' \itemize{
+#' \describe{
 #'   \item{\eqn{x^p}}{ for \eqn{x \geq 0}}
 #'   \item{\eqn{-\infty}}{\eqn{x < 0}}
 #' }, this function is concave, increasing, and positive.
 #'
 #' For \eqn{p > 1, p \neq 2,4,8,\ldots} and \eqn{f(x) = }
-#' \itemize{
+#' \describe{
 #'   \item{\eqn{x^p}}{ for \eqn{x \geq 0}}
 #'   \item{\eqn{+\infty}}{\eqn{x < 0}}
 #' }, this function is convex, increasing, and positive.
@@ -814,6 +814,10 @@ Power <- function(x, p, max_denom = 1024) { .Power(x = x, p = p, max_denom = max
 
 setMethod("initialize", "Power", function(.Object, ..., x, p, max_denom = 1024, w = NA_real_, approx_error = NA_real_) {
   p_old <- p
+  if(length(p) != 1)
+    stop("p must be a numeric scalar")
+  if(is.na(p) || is.null(p))
+    stop("p cannot be NA or NULL")
 
   # How we convert p to a rational depends on the branch of the function
   if(p > 1) {
