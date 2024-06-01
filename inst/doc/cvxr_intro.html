@@ -11,7 +11,7 @@
 
 <meta name="author" content="Anqi Fu, Balasubramanian Narasimhan and Stephen Boyd" />
 
-<meta name="date" content="2024-01-31" />
+<meta name="date" content="2024-05-31" />
 
 <title>Disciplined Convex Optimization in R</title>
 
@@ -376,7 +376,7 @@ display: none;
 <h1 class="title toc-ignore">Disciplined Convex Optimization in R</h1>
 <h4 class="author">Anqi Fu, Balasubramanian Narasimhan and Stephen
 Boyd</h4>
-<h4 class="date">2024-01-31</h4>
+<h4 class="date">2024-05-31</h4>
 
 </div>
 
@@ -393,14 +393,15 @@ by combining constants, variables, and parameters using a library of
 functions with known mathematical properties. <code>CVXR</code> then
 applies signed <a href="https://cvxr.rbind.io">disciplined convex
 programming (DCP)</a> to verify the problem’s convexity. Once verified,
-the problem is converted into standard conic form using graph
-implementations and passed to a cone solver such as <a href="https://github.com/embotech/ecos">ECOS</a> or <a href="https://github.com/cvxgrp/scs">SCS</a>.</p>
+the problem is converted into standard form using graph implementations
+and passed to a convex solver such as <a href="https://osqp.org">OSQP</a> or <a href="https://github.com/embotech/ecos">ECOS</a> or <a href="https://github.com/cvxgrp/scs">SCS</a>.</p>
 </div>
 <div id="where-can-i-learn-more" class="section level2">
 <h2>Where can I learn more?</h2>
-<p>The paper by <span class="citation">Fu, Narasimhan, and Boyd
-(2017)</span> is the main reference. Further documentation, along with a
-number of tutorial examples, is also available on the <a href="https://cvxr.rbind.io">CVXR website</a>.</p>
+<p>The paper by <a href="https://doi.org/10.18637/jss.v094.i14"><span class="citation">Fu, Narasimhan, and Boyd (2020)</span></a> is the main
+reference. Further documentation, along with a number of tutorial
+examples, is also available on the <a href="https://cvxr.rbind.io">CVXR
+website</a>.</p>
 <p>Below we provide a simple example to get you started.</p>
 </div>
 <div id="a-simple-example" class="section level2">
@@ -1040,10 +1041,11 @@ variability.</p>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
-<div id="ref-fu:naras:boyd:2017" class="csl-entry">
-Fu, Anqi, Balasubramanian Narasimhan, and Stephen Boyd. 2017.
-<span>“CVXR: An r Package for Disciplined Convex Optimization.”</span>
-<a href="https://web.stanford.edu/~boyd/papers/cvxr_paper.html">https://web.stanford.edu/~boyd/papers/cvxr_paper.html</a>.
+<div id="ref-cvxr2020" class="csl-entry">
+Fu, Anqi, Balasubramanian Narasimhan, and Stephen Boyd. 2020.
+<span>“<span>CVXR</span>: An <span>R</span> Package for Disciplined
+Convex Optimization.”</span> <em>Journal of Statistical Software</em> 94
+(14): 1–34. <a href="https://doi.org/10.18637/jss.v094.i14">https://doi.org/10.18637/jss.v094.i14</a>.
 </div>
 </div>
 </div>
